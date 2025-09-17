@@ -1,0 +1,66 @@
+/* Visual-only table polish for Rankings page */
+
+.rankings-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;     /* needed so column dividers show cleanly */
+  border-spacing: 0;
+}
+
+.rankings-table th,
+.rankings-table td {
+  padding: 8px 10px;
+  color: #111;                   /* very visible dark text */
+  font-weight: 500;
+  background-clip: padding-box;  /* prevents bleed under borders */
+  border-right: 1px solid #e5e7eb; /* vertical column divider */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure the last two columns have room and aren't ellipsized */
+.rankings-table th:nth-last-child(2),
+.rankings-table td:nth-last-child(2) {
+  /* "Games This Week" */
+  min-width: 10ch;
+  text-overflow: clip;           /* show full number */
+}
+
+.rankings-table th:last-child,
+.rankings-table td:last-child {
+  /* "Next Opponent" (e.g., '@COL' or 'vs TOR') */
+  min-width: 8ch;
+  text-overflow: clip;           /* show full token */
+  border-right: none;            /* no divider on last column */
+}
+
+/* Header */
+.rankings-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;           /* light header band */
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+}
+
+/* Zebra rows: white / light gray */
+.rankings-table tbody tr:nth-child(odd)  td { background: #ffffff; }
+.rankings-table tbody tr:nth-child(even) td { background: #f3f4f6; }
+
+/* Horizontal separators */
+.rankings-table tbody tr td {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Optional: make first column (Name) a bit wider */
+.rankings-table td:first-child,
+.rankings-table th:first-child {
+  width: 220px;
+}
+
+/* Optional: tiny tightening on very narrow screens */
+@media (max-width: 640px) {
+  .rankings-table th, .rankings-table td { padding: 6px 8px; }
+}

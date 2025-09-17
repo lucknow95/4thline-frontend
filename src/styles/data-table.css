@@ -1,0 +1,71 @@
+/* src/styles/data-table.css */
+/* Reusable, visual-only data table styling */
+
+.data-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Cells */
+.data-table th,
+.data-table td {
+  padding: 8px 10px;
+  color: #111;                       /* strong readable text */
+  font-weight: 500;
+  background-clip: padding-box;
+  border-right: 1px solid #e5e7eb;   /* vertical column divider */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  border-right: none;                /* no divider on last col */
+}
+
+/* Header */
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;               /* subtle header band */
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+}
+
+/* Zebra rows */
+.data-table tbody tr:nth-child(odd)  td { background: #ffffff; }
+.data-table tbody tr:nth-child(even) td { background: #f3f4f6; }
+
+/* Horizontal separators */
+.data-table tbody tr td {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Optional: make the first column wider for names */
+.data-table td:first-child,
+.data-table th:first-child {
+  width: 220px;
+}
+
+@media (max-width: 640px) {
+  .data-table th,
+  .data-table td { padding: 6px 8px; }
+}
+
+/* ------------------------------------------------------------------
+   OPT‑IN (Optimizer only):
+   If you want to hide the 2nd column ("City") and the last column
+   (blue "Weekly Strip") on the Optimizer table, wrap that table in a
+   parent element with class "optimizer-table--compact" and use the
+   rules below.
+------------------------------------------------------------------- */
+.optimizer-table--compact .data-table thead th:nth-child(2),
+.optimizer-table--compact .data-table tbody td:nth-child(2),
+.optimizer-table--compact .data-table thead th:last-child,
+.optimizer-table--compact .data-table tbody td:last-child {
+  display: none;
+}
