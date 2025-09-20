@@ -7,16 +7,16 @@ import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
 
-// Define our own props type instead of importing from 'next'
+// Next 15–safe: params can be an object or a Promise of it
 interface BlogPostProps {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
-// Keep this static unless you want dynamic rendering
+// Keep static unless you want dynamic rendering
 export const dynamic = 'force-static';
 
 export default async function BlogPostPage({ params }: BlogPostProps) {
-  // ✅ Works with Next 15 where params may be a Promise
+  // Works whether params is a plain object or a Promise
   const { slug } = await params;
 
   if (!slug) {
@@ -41,7 +41,7 @@ export default async function BlogPostPage({ params }: BlogPostProps) {
   const fileContents = fs.readFileSync(postPath, 'utf8');
   const { data, content } = matter(fileContents);
 
-  // If post is explicitly marked as a draft, do not publish it.
+  // Hide drafts from production entirely
   if (data?.draft === true) {
     notFound();
   }
