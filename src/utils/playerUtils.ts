@@ -1,8 +1,12 @@
 // src/utils/playerUtils.ts
 import type { Player } from '@/types';
-import type { DayShort } from '@/utils/fantasyWeeks';
+// ❌ remove this
+// import type { DayShort } from '@/utils/fantasyWeeks';
+
+// ✅ use the exported type from guards
 import rawSchedule from '@/data/nhlSchedule.json';
-import { isISODate, filterSchedule } from '@/types/guards';
+import type { DayShort } from '@/types/guards';
+import { filterSchedule, isISODate } from '@/types/guards';
 
 // Validate once at module load
 const nhlSchedule = filterSchedule(rawSchedule as unknown);

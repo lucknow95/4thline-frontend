@@ -4,13 +4,13 @@ import type { Player, ScheduleGame } from '@/types';
 /* ================================
    DayShort helpers
    ================================ */
-// Define days locally and infer the union type
 const DAY_SHORTS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
-type DayShort = typeof DAY_SHORTS[number];
+export type DayShort = typeof DAY_SHORTS[number];
 
 export function isDayShort(x: unknown): x is DayShort {
   return typeof x === 'string' && (DAY_SHORTS as readonly string[]).includes(x);
 }
+
 
 export function toDayShorts(arr: unknown): DayShort[] {
   if (!Array.isArray(arr)) return [];
