@@ -4,10 +4,35 @@ import NavLink from "@/components/NavLink";
 import type { ReactNode } from "react";
 import "./globals.css";
 
+// Build-safe resolver that won't throw if the env var is missing/invalid.
+function resolveMetadataBase(): URL {
+  const fromNextPublic = process.env.NEXT_PUBLIC_BASE_URL;
+  const fromVercel = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
+
+  // Prefer NEXT_PUBLIC_BASE_URL if it's a valid absolute URL.
+  if (fromNextPublic) {
+    try {
+      return new URL(fromNextPublic);
+    } catch {
+      // fall through
+    }
+  }
+
+  // Otherwise try VERCEL_URL (preview/prod deploys have this).
+  if (fromVercel) {
+    try {
+      return new URL(fromVercel);
+    } catch {
+      // fall through
+    }
+  }
+
+  // Final safe default
+  return new URL("https://4thlinefantasy.com");
+}
+
 export const metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL ?? "https://4thlinefantasy.com"
-  ),
+  metadataBase: resolveMetadataBase(),
   title: "4th Line Fantasy",
   description: "Fantasy hockey tools",
   icons: {
@@ -46,33 +71,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <span className="sr-only">Home</span>
                 </NavLink>
               </li>
-              <li
-                className="h-5 w-px bg-[var(--header-border)]"
-                aria-hidden="true"
-              />
-              <li>
-                <NavLink href="/rankings">Rankings</NavLink>
-              </li>
-              <li>
-                <NavLink href="/players">Players</NavLink>
-              </li>
-              <li>
-                <NavLink href="/optimizer">Optimizer</NavLink>
-              </li>
-              <li>
-                <NavLink href="/crunch-palace">Crunch Palace</NavLink>
-              </li>
-              <li>
-                <NavLink href="/blog" exact={false}>
-                  Blog
-                </NavLink>
-              </li>
-              <li>
-                <NavLink href="/newsletter">Newsletter</NavLink>
-              </li>
-              <li>
-                <NavLink href="/merch">Merch</NavLink>
-              </li>
+              <li className="h-5 w-px bg-[var(--header-border)]" aria-hidden="true" />
+              <li><NavLink href="/rankings">Rankings</NavLink></li>
+              <li><NavLink href="/players">Players</NavLink></li>
+              <li><NavLink href="/optimizer">Optimizer</NavLink></li>
+              <li><NavLink href="/crunch-palace">Crunch Palace</NavLink></li>
+              <li><NavLink href="/blog" exact={false}>Blog</NavLink></li>
+              <li><NavLink href="/newsletter">Newsletter</NavLink></li>
+              <li><NavLink href="/merch">Merch</NavLink></li>
             </ul>
           </nav>
         </header>
