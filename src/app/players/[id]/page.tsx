@@ -16,13 +16,17 @@ const ALL_PLAYERS: Player[] = dedupePlayersById(
   filterPlayers(rawPlayers as unknown)
 );
 
+// Next 15–safe: params can be an object or a Promise of it
 interface PlayerPageProps {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }
 
-export default function PlayerPage({ params }: PlayerPageProps) {
+export default async function PlayerPage({ params }: PlayerPageProps) {
+  // ✅ Works whether params is an object or a Promise
+  const { id } = await params;
+
   // Be tolerant of any weird param shapes and ensure non-negative integer
-  const idStr = Array.isArray(params.id) ? params.id[0] : params.id;
+  const idStr = Array.isArray(id) ? id[0] : id;
   const playerId = Number(idStr);
   if (!Number.isInteger(playerId) || playerId < 0) notFound();
 
@@ -35,4 +39,3 @@ export default function PlayerPage({ params }: PlayerPageProps) {
     </main>
   );
 }
-
