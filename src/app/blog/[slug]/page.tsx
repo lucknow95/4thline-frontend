@@ -7,15 +7,15 @@ import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
 
-// Keep this static unless you want dynamic rendering
+// Keep static unless you want dynamic rendering
 export const dynamic = 'force-static';
 
 export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string } | Promise<{ slug: string }>;
+  // ✅ Next 15 expects params as a Promise
+  params: Promise<{ slug: string }>;
 }) {
-  // ✅ Works for both object and Promise in Next 15
   const { slug } = await params;
 
   if (!slug) {
@@ -40,7 +40,7 @@ export default async function BlogPostPage({
   const fileContents = fs.readFileSync(postPath, 'utf8');
   const { data, content } = matter(fileContents);
 
-  // If post is explicitly marked as a draft, do not publish it.
+  // Hide drafts entirely
   if (data?.draft === true) {
     notFound();
   }
@@ -133,19 +133,11 @@ export default async function BlogPostPage({
               prose-hr:border-[#5CAFE8]/40
               prose-blockquote:border-[#5CAFE8]/50
               prose-figcaption:text-[#0F2A44]/70
-
-              /* Large paragraph spacing */
               prose-p:mb-12 md:prose-p:mb-14 prose-p:leading-relaxed
-
-              /* Lists with breathing room */
               prose-ul:my-10 prose-ol:my-10
               prose-li:my-3 md:prose-li:my-4 prose-li:leading-relaxed
-
-              /* Headings clearly separated */
               prose-h2:mt-14 prose-h2:mb-6
               prose-h3:mt-10 prose-h3:mb-4
-
-              /* Extras if present */
               prose-table:my-10 prose-img:my-8
             "
             dangerouslySetInnerHTML={{ __html: contentHtml }}

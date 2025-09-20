@@ -16,13 +16,12 @@ const ALL_PLAYERS: Player[] = dedupePlayersById(
   filterPlayers(rawPlayers as unknown)
 );
 
-// Next 15–safe: params can be an object or a Promise of it
-interface PlayerPageProps {
-  params: { id: string } | Promise<{ id: string }>;
-}
-
-export default async function PlayerPage({ params }: PlayerPageProps) {
-  // ✅ Works whether params is an object or a Promise
+export default async function PlayerPage({
+  params,
+}: {
+  // ✅ Next 15 expects params as a Promise
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
   // Be tolerant of any weird param shapes and ensure non-negative integer
