@@ -1,20 +1,28 @@
-'use client';
-
+// src/app/newsletter/confirmed/page.tsx
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
-export default function NewsletterConfirmedPage() {
-  const sp = useSearchParams();
-  const confirmed = sp.get('confirmed'); // "1" when success
-  const error = sp.get('error');         // "invalid" | "unknown" (optional)
+export const dynamic = 'force-static';
+
+export default async function NewsletterConfirmedPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+
+  const readOne = (v: string | string[] | undefined) =>
+    Array.isArray(v) ? v[0] : v ?? null;
+
+  const confirmed = readOne(sp.confirmed); // "1", "true", "success" (optional)
+  const error = readOne(sp.error);         // "invalid" | "unknown" | other (optional)
 
   let title = 'Subscription Confirmed';
   let body =
     'Thanks for confirming your subscription to the 4th Line Fantasy newsletter! 🎉';
-  let variant: 'ok' | 'error' = 'ok';
+  let isError = false;
 
   if (error) {
-    variant = 'error';
+    isError = true;
     title = 'Confirmation Error';
 
     if (error === 'invalid') {
@@ -28,7 +36,7 @@ export default function NewsletterConfirmedPage() {
         'We couldn’t process your request. Please try again shortly, or re-subscribe to receive a new confirmation email.';
     }
   } else if (!confirmed) {
-    // If someone visits this page directly without the param, show a friendly generic success.
+    // Direct visit without the param — show a friendly generic success/update message.
     title = 'Subscription Updated';
     body =
       'Your newsletter preferences have been updated. If you meant to confirm a new subscription, please use the confirmation link from your email.';
@@ -40,7 +48,7 @@ export default function NewsletterConfirmedPage() {
 
       <div
         className={
-          variant === 'error'
+          isError
             ? 'mb-6 rounded-2xl border border-red-700/40 bg-red-950/20 p-4'
             : 'mb-6 rounded-2xl border border-neutral-700/40 p-4'
         }

@@ -1,120 +1,52 @@
-'use client';
+// src/app/merch/unsubscribe/page.tsx
+import Link from "next/link";
 
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useState, useTransition } from 'react';
+// Keep this; fine for a static, querystring-only UI page
+export const dynamic = "force-static";
 
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Next 15: searchParams is a Promise in PageProps.
+// Make the page async and await it.
+export default async function MerchUnsubscribePage({
+    searchParams,
+}: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+    const sp = await searchParams;
 
-export default function MerchUnsubscribePage() {
-    const sp = useSearchParams();
-    const status = sp.get('status'); // "success" | "invalid" | "error" (optional)
+    const readOne = (v: string | string[] | undefined) =>
+        Array.isArray(v) ? v[0] : v ?? null;
 
-    const [email, setEmail] = useState('');
-    const [formMsg, setFormMsg] = useState<string | null>(null);
-    const [isPending, startTransition] = useTransition();
+    const unsubVal = readOne(sp.unsub);
+    const errorMsg = readOne(sp.error);
 
-    let title = 'Unsubscribe – Merch Updates';
-    let message = 'Confirm you want to unsubscribe from 4th Line Fantasy merch updates.';
-
-    if (status === 'success') {
-        title = 'Unsubscribed';
-        message = 'You’ve been unsubscribed from 4th Line Fantasy merch updates. You can re-subscribe anytime.';
-    } else if (status === 'invalid') {
-        title = 'Invalid Link';
-        message = 'This unsubscribe link is invalid or has already been used. If you still receive emails, please try again from a newer email.';
-    } else if (status === 'error') {
-        title = 'Something Went Wrong';
-        message = 'We couldn’t process your unsubscribe request. Please try again later.';
-    }
-
-    const onSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormMsg(null);
-
-        if (!emailRe.test(email)) {
-            setFormMsg('Please enter a valid email address.');
-            return;
-        }
-
-        startTransition(async () => {
-            try {
-                const res = await fetch('/api/unsubscribe', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ list: 'merch', email }),
-                });
-
-                if (res.ok) {
-                    setFormMsg('Success! You are unsubscribed from merch updates.');
-                } else {
-                    const j = await res.json().catch(() => ({}));
-                    setFormMsg(j?.error ? `Error: ${j.error}` : 'Error: Unable to unsubscribe. Please try again.');
-                }
-            } catch {
-                setFormMsg('Network error: please try again.');
-            }
-        });
-    };
-
-    const showManualForm = !status || status === 'invalid' || status === 'error';
+    const successSet = new Set(["1", "true", "success"]);
+    const success =
+        typeof unsubVal === "string" && successSet.has(unsubVal.toLowerCase());
 
     return (
-        <main className="px-4 py-8 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-3">{title}</h1>
-            <p className="mb-6">{message}</p>
+        <main className="px-4 py-8">
+            <h1 className="text-2xl font-bold mb-4">Merch Unsubscribe</h1>
 
-            {showManualForm && (
-                <section className="mb-8 rounded-2xl border border-neutral-700/40 p-4">
-                    <h2 className="font-semibold mb-2">Unsubscribe manually</h2>
-                    <p className="text-sm text-neutral-400 mb-4">
-                        If you arrived here without a link from an email, you can unsubscribe by entering your email below.
-                    </p>
-
-                    <form onSubmit={onSubmit} className="flex flex-col gap-3">
-                        <label htmlFor="email" className="text-sm font-medium">
-                            Email address
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            inputMode="email"
-                            autoComplete="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="rounded-xl border border-neutral-700/50 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500"
-                            placeholder="you@example.com"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            className="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-neutral-700/50 hover:border-orange-500 hover:text-orange-500 transition-colors disabled:opacity-60"
-                        >
-                            {isPending ? 'Unsubscribing…' : 'Unsubscribe from Merch'}
-                        </button>
-
-                        {formMsg && (
-                            <p className="text-sm mt-1">
-                                {formMsg}
-                            </p>
-                        )}
-                    </form>
-
-                    <p className="text-xs text-neutral-500 mt-4">
-                        Prefer email? Send a message to{' '}
-                        <a href="mailto:unsubscribe@4thlinefantasy.com?subject=unsubscribe" className="underline">
-                            unsubscribe@4thlinefantasy.com
-                        </a>
-                        .
-                    </p>
-                </section>
+            {success && (
+                <p>You’ve been unsubscribed from merch updates. Sorry to see you go!</p>
             )}
 
-            <div className="mt-6 flex flex-wrap gap-4">
-                <Link href="/" className="underline">Home</Link>
-                <Link href="/merch" className="underline">Merch</Link>
-                <Link href="/rankings" className="underline">Player Rankings</Link>
-            </div>
+            {!success && !errorMsg && (
+                <p>
+                    We’re processing your unsubscribe request… If this page doesn’t
+                    update, please try the link from your email again.
+                </p>
+            )}
+
+            {errorMsg && (
+                <p className="text-red-600">
+                    Unsubscribe failed: <span className="font-mono">{errorMsg}</span>
+                </p>
+            )}
+
+            <p className="mt-4">
+                <Link href="/">Return to the homepage</Link>
+            </p>
         </main>
     );
 }
