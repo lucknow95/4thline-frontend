@@ -7,12 +7,17 @@ import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
 
+// Define our own props type instead of importing from 'next'
 interface BlogPostProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }> | { slug: string };
 }
 
+// Keep this static unless you want dynamic rendering
+export const dynamic = 'force-static';
+
 export default async function BlogPostPage({ params }: BlogPostProps) {
-  const slug = params.slug;
+  // ✅ Works with Next 15 where params may be a Promise
+  const { slug } = await params;
 
   if (!slug) {
     return (
@@ -38,7 +43,6 @@ export default async function BlogPostPage({ params }: BlogPostProps) {
 
   // If post is explicitly marked as a draft, do not publish it.
   if (data?.draft === true) {
-    // Return a proper 404 so the draft isn't live or indexable.
     notFound();
   }
 
@@ -48,6 +52,7 @@ export default async function BlogPostPage({ params }: BlogPostProps) {
   const title =
     (data?.title as string) ||
     slug.replace(/-/g, ' ').replace(/\b\w/g, (m: string) => m.toUpperCase());
+
   const dateStr = data?.date
     ? new Date(data.date as string).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -118,7 +123,7 @@ export default async function BlogPostPage({ params }: BlogPostProps) {
             )}
           </header>
 
-          {/* Content with BIG, skimmable spacing (prose-p utilities) */}
+          {/* Content with BIG, skimmable spacing */}
           <div
             className="
               prose prose-lg max-w-none text-[#0F2A44]
