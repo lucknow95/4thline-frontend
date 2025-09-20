@@ -1,11 +1,12 @@
 // src/types/guards.ts
 import type { Player, ScheduleGame } from '@/types';
-import type { DayShort } from '@/utils/fantasyWeeks';
 
 /* ================================
    DayShort helpers
    ================================ */
-const DAY_SHORTS: readonly DayShort[] = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as const;
+// Define days locally and infer the union type
+const DAY_SHORTS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+type DayShort = typeof DAY_SHORTS[number];
 
 export function isDayShort(x: unknown): x is DayShort {
   return typeof x === 'string' && (DAY_SHORTS as readonly string[]).includes(x);
@@ -23,7 +24,7 @@ export function isISODate(s: unknown): s is string {
   return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 }
 
-export function isScheduleGame(x: unknown): x is Pick<ScheduleGame, 'date'|'home_team'|'away_team'> {
+export function isScheduleGame(x: unknown): x is Pick<ScheduleGame, 'date' | 'home_team' | 'away_team'> {
   if (!x || typeof x !== 'object') return false;
   const g = x as any;
   return (
