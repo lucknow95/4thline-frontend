@@ -1,5 +1,5 @@
 // src/app/api/subscribe/route.ts
-import { sendConfirmEmail } from "@/lib/email"; // (to, confirmUrl, list)
+import { sendConfirmEmail } from "@/lib/email";
 import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Pool } from "pg";
@@ -7,115 +7,139 @@ import { Pool } from "pg";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type ListType = "newsletter" | "merch";
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// ---------- helpers ----------
+const ok = (b: unknown, i?: number | ResponseInit) => NextResponse.json(b, typeof i === "number" ? { status: i } : i);
+const bad = (b: unknown, s = 400) => NextResponse.json(b, { status: s });
+const token = (n = 24) => randomBytes(n).toString("hex");
+
+function baseUrl(): string {
+  const a = process.env.APP_BASE_URL?.trim();
+  const b = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
+  const c = process.env.NEXT_PUBLIC_BASE_URL?.trim();
+  for (const cand of [a, b, c, "http://localhost:3000"]) {
+    if (!cand) continue;
+    try { return new URL(cand).toString().replace(/\/+$/, ""); } catch { }
+  }
+  return "http://localhost:3000";
+}
+
+// ---------- PG pool ----------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
 });
 
-type ListType = "newsletter" | "merch";
+// ---------- GET /api/subscribe?diag=1 (safe diagnostics) ----------
+export async function GET(req: NextRequest) {
+  const diag = req.nextUrl.searchParams.get("diag");
+  if (!diag) return bad({ error: "Method not allowed" }, 405);
 
-type Body = {
-  email?: string;
-  list?: ListType;
-  sourcePath?: string | null;   // optional page where the user started (used only for analytics/redirect hints)
-  country?: string | null;
-  utm_source?: string | null;
-  utm_medium?: string | null;
-  utm_campaign?: string | null;
-};
-
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const isEmail = (s: unknown): s is string => typeof s === "string" && emailRe.test(s);
-const isList = (s: unknown): s is ListType => s === "newsletter" || s === "merch";
-
-function json(data: unknown, init?: number | ResponseInit) {
-  if (typeof init === "number") return NextResponse.json(data, { status: init });
-  return NextResponse.json(data, init);
+  return ok({
+    ok: true,
+    env: {
+      DATABASE_URL: Boolean(process.env.DATABASE_URL),
+      RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY),
+      EMAIL_FROM: Boolean(process.env.EMAIL_FROM),
+      APP_BASE_URL: process.env.APP_BASE_URL ?? null,
+      VERCEL_URL: process.env.VERCEL_URL ?? null,
+    },
+  });
 }
 
-const token = () => randomBytes(20).toString("hex");
-
-function getBaseUrl(req: NextRequest) {
-  const proto = (req.headers.get("x-forwarded-proto") || "").split(",")[0]?.trim() || "http";
-  const host = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000") as string;
-  return `${proto}://${host}`;
-}
-
-export async function GET() {
-  return json({ ok: true, route: "subscribe" }, 200);
-}
-
+// ---------- POST ----------
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json().catch(() => ({}))) as Body;
-    const {
-      email,
-      list,
-      sourcePath = null,
-      country = null,
-      utm_source = null,
-      utm_medium = null,
-      utm_campaign = null,
-    } = body || {};
+    const body = (await req.json().catch(() => ({}))) as {
+      email?: string;
+      list?: ListType;
+      sourcePath?: string | null;
+      _dryRunEmail?: boolean; // set true to skip sending email while debugging
+    };
 
-    if (!isEmail(email)) return json({ ok: false, error: "Invalid email." }, 400);
-    if (!isList(list)) return json({ ok: false, error: "Invalid list." }, 400);
+    const email = (body.email ?? "").trim().toLowerCase();
+    const list = body.list;
+    if (!emailRe.test(email)) return bad({ error: "Invalid email" }, 400);
+    if (list !== "newsletter" && list !== "merch") return bad({ error: "Invalid list" }, 400);
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
-    const ua = req.headers.get("user-agent") || null;
+    // Env checks (clear messages)
+    if (!process.env.DATABASE_URL) return bad({ error: "Missing DATABASE_URL" }, 500);
+    if (!process.env.EMAIL_FROM) return bad({ error: "Missing EMAIL_FROM" }, 500);
+    if (!process.env.RESEND_API_KEY && !body._dryRunEmail) {
+      return bad({ error: "Missing RESEND_API_KEY" }, 500);
+    }
 
-    const t = token();
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS subscribers (
+          id BIGSERIAL PRIMARY KEY,
+          email TEXT NOT NULL,
+          list  TEXT NOT NULL CHECK (list IN ('newsletter','merch')),
+          confirmed BOOLEAN NOT NULL DEFAULT false,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          UNIQUE(email, list)
+        );
+      `);
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS verify_tokens (
+          token TEXT PRIMARY KEY,
+          email TEXT NOT NULL,
+          list  TEXT NOT NULL CHECK (list IN ('newsletter','merch')),
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `);
 
       await client.query(
-        `insert into verify_tokens
-          (email, token, list, ip, ua, source_path, country, utm_source, utm_medium, utm_campaign)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [email, t, list, ip, ua, sourcePath, country, utm_source, utm_medium, utm_campaign],
+        `INSERT INTO subscribers (email, list, confirmed)
+         VALUES ($1,$2,false)
+         ON CONFLICT (email, list) DO UPDATE SET confirmed=false`,
+        [email, list]
       );
 
+      await client.query(`DELETE FROM verify_tokens WHERE email=$1 AND list=$2`, [email, list]);
+      const t = token();
       await client.query(
-        `insert into subscribers (email, list, status)
-         values ($1,$2,'pending')
-         on conflict (email, list) do update set status='pending'`,
-        [email, list],
+        `INSERT INTO verify_tokens (token, email, list) VALUES ($1,$2,$3)`,
+        [t, email, list]
       );
 
       await client.query("COMMIT");
-    } catch (e) {
+
+      const base = baseUrl();
+      const path = list === "merch" ? "merch" : "newsletter";
+      const confirmUrl = `${base}/${path}/confirmed?confirmed=1&token=${t}`;
+
+      const sendEmails = (process.env.SEND_EMAILS ?? "true") !== "false" && !body._dryRunEmail;
+      if (sendEmails) {
+        try {
+          await sendConfirmEmail(email, confirmUrl, list as ListType);
+        } catch (e: any) {
+          console.error("sendConfirmEmail error", e);
+          const msg = e?.message?.includes("Sender identity")
+            ? "Email sender identity not verified"
+            : (e?.message || "Email send failed");
+          return bad({ error: msg }, 500);
+        }
+      }
+
+      return ok({ ok: true, confirmUrl, sentEmail: !!sendEmails });
+    } catch (err) {
       await client.query("ROLLBACK");
-      throw e;
+      console.error("subscribe tx error", err);
+      throw err;
     } finally {
       client.release();
     }
-
-    // Build confirm URL that hits your confirm API, which should handle the token
-    // and then redirect to your friendly confirmation page.
-    // Example confirm API route: /api/confirm-subscription
-    const base = getBaseUrl(req);
-    const qp = new URLSearchParams({ token: t, list });
-    if (sourcePath) qp.set("redirect", sourcePath); // optional hint for where to send users after confirm
-    const confirmUrl = `${base}/api/confirm-subscription?${qp.toString()}`;
-
-    // Send the confirmation email
-    const result = await sendConfirmEmail(email, confirmUrl, list);
-
-    // Expose message id while developing to help with troubleshooting
-    const resendId = (result as any)?.data?.id ?? null;
-
-    return json(
-      {
-        ok: true,
-        message: "Check your email to confirm.",
-        ...(process.env.NODE_ENV !== "production" ? { resendId } : {}),
-      },
-      200,
-    );
   } catch (err: any) {
-    const message =
-      process.env.NODE_ENV === "development" ? String(err?.message || err) : "Something went wrong.";
-    return json({ ok: false, error: message }, 500);
+    console.error("subscribe fatal", err);
+    const msg =
+      err?.code === "ENOTFOUND" ? "Database host not reachable" :
+        err?.code === "28P01" ? "Database authentication failed" :
+          typeof err?.message === "string" ? err.message : "Unknown error";
+    return bad({ error: msg }, 500);
   }
 }
