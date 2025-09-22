@@ -1,7 +1,7 @@
 // src/app/api/subscribe/route.ts
 import { sendConfirmEmail } from "@/lib/email";
 import { randomBytes } from "crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Pool } from "pg";
 
 export const runtime = "nodejs";
@@ -38,8 +38,9 @@ const pool = new Pool({
 });
 
 /* ------------- GET /api/subscribe?diag=1 (env diagnostics) ------------- */
-export async function GET(req: NextRequest) {
-  const diag = req.nextUrl.searchParams.get("diag");
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const diag = url.searchParams.get("diag");
   if (!diag) return bad({ ok: false, error: "Method not allowed" }, 405);
 
   return ok({
@@ -56,9 +57,9 @@ export async function GET(req: NextRequest) {
 }
 
 /* ------------------------------ POST ------------------------------ */
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = (await req.json().catch(() => ({}))) as {
+    const body = (await request.json().catch(() => ({}))) as {
       email?: string;
       list?: ListType;
       sourcePath?: string | null;
