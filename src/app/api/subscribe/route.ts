@@ -1,159 +1,161 @@
 // src/app/api/subscribe/route.ts
-import { sendConfirmEmail } from "@/lib/email";
+import { confirmLink, sendConfirmEmail, type ListType } from "@/lib/email";
 import { randomBytes } from "crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Pool } from "pg";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type ListType = "newsletter" | "merch";
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/* --------------------------- helpers --------------------------- */
-const ok = (b: unknown, i?: number | ResponseInit) =>
-  NextResponse.json(b, typeof i === "number" ? { status: i } : i);
-const bad = (b: unknown, s = 400) => NextResponse.json(b, { status: s });
-const token = (n = 24) => randomBytes(n).toString("hex");
-
-function baseUrl(): string {
-  const a = process.env.APP_BASE_URL?.trim();
-  const b = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
-  const c = process.env.NEXT_PUBLIC_BASE_URL?.trim();
-  for (const cand of [a, b, c, "http://localhost:3000"]) {
-    if (!cand) continue;
-    try {
-      return new URL(cand).toString().replace(/\/+$/, "");
-    } catch {
-      /* try next */
-    }
-  }
-  return "http://localhost:3000";
-}
-
-/* ----------------------------- PG pool ----------------------------- */
+// Reused pg pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
 });
 
-/* ------------- GET /api/subscribe?diag=1 (env diagnostics) ------------- */
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const diag = url.searchParams.get("diag");
-  if (!diag) return bad({ ok: false, error: "Method not allowed" }, 405);
+// --- utils ---
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isEmail = (s: unknown): s is string => typeof s === "string" && emailRe.test(s);
+const isList = (x: unknown): x is ListType => x === "newsletter" || x === "merch";
 
-  return ok({
-    ok: true,
-    route: "subscribe",
-    env: {
-      DATABASE_URL: Boolean(process.env.DATABASE_URL),
-      RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY),
-      EMAIL_FROM: Boolean(process.env.EMAIL_FROM),
-      APP_BASE_URL: process.env.APP_BASE_URL ?? null,
-      VERCEL_URL: process.env.VERCEL_URL ?? null,
-    },
+type BodyIn = {
+  email?: unknown;
+  list?: unknown;
+  _dryRunEmail?: unknown;
+  // optional fields you might add later (kept generic to avoid runtime errors)
+  [k: string]: unknown;
+};
+
+const baseHeaders = {
+  "content-type": "application/json",
+  "cache-control": "no-store",
+  "x-rev": "subscribe-v4",
+  // If you ever need cross-origin (e.g. hitting preview URL from prod), this is safe & minimal.
+  // Adjust origin allow-list at a proxy/CDN layer if you want tighter control:
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET,POST,OPTIONS",
+  "access-control-allow-headers": "content-type",
+} as const;
+
+function j(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
+  return new NextResponse(JSON.stringify(body), {
+    status,
+    headers: { ...baseHeaders, ...extraHeaders },
   });
 }
 
-/* ------------------------------ POST ------------------------------ */
-export async function POST(request: Request) {
+// --- routes ---
+export async function GET() {
+  return j({ ok: true, method: "GET", rev: "subscribe-v4" });
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: baseHeaders,
+  });
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const body = (await request.json().catch(() => ({}))) as {
-      email?: string;
-      list?: ListType;
-      sourcePath?: string | null;
-      _dryRunEmail?: boolean; // set true to skip sending email while debugging
-    };
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+    const ua = req.headers.get("user-agent") || null;
 
-    const email = (body.email ?? "").trim().toLowerCase();
-    const list = body.list;
-    if (!emailRe.test(email)) return bad({ error: "Invalid email" }, 400);
-    if (list !== "newsletter" && list !== "merch") return bad({ error: "Invalid list" }, 400);
+    const body = (await req.json().catch(() => ({}))) as BodyIn;
+    const emailUnknown = body?.email;
+    const listUnknown = body?.list;
+    const _dryRunEmail = body?._dryRunEmail === true;
 
-    // Env checks (clear messages)
-    if (!process.env.DATABASE_URL) return bad({ error: "Missing DATABASE_URL" }, 500);
-    if (!process.env.EMAIL_FROM) return bad({ error: "Missing EMAIL_FROM" }, 500);
-    if (!process.env.RESEND_API_KEY && !body._dryRunEmail) {
-      return bad({ error: "Missing RESEND_API_KEY" }, 500);
-    }
+    if (!isEmail(emailUnknown)) return j({ error: "invalid email" }, 400);
+    if (!isList(listUnknown)) return j({ error: "invalid list" }, 400);
+
+    const email = String(emailUnknown).trim().toLowerCase();
+    const list: ListType = listUnknown;
 
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
 
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS subscribers (
-          id BIGSERIAL PRIMARY KEY,
-          email TEXT NOT NULL,
-          list  TEXT NOT NULL CHECK (list IN ('newsletter','merch')),
-          confirmed BOOLEAN NOT NULL DEFAULT false,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          UNIQUE(email, list)
-        );
-      `);
-
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS verify_tokens (
-          token TEXT PRIMARY KEY,
-          email TEXT NOT NULL,
-          list  TEXT NOT NULL CHECK (list IN ('newsletter','merch')),
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-      `);
-
-      await client.query(
-        `INSERT INTO subscribers (email, list, confirmed)
-         VALUES ($1,$2,false)
-         ON CONFLICT (email, list) DO UPDATE SET confirmed=false`,
+      // Idempotency check
+      const existing = await client.query<{ status: string }>(
+        `select status from subscribers where email = $1 and list = $2 limit 1`,
         [email, list]
       );
+      const currentStatus = existing.rows[0]?.status ?? null;
 
-      await client.query(`DELETE FROM verify_tokens WHERE email=$1 AND list=$2`, [email, list]);
+      if (currentStatus === "confirmed") {
+        await client.query("COMMIT");
+        return j({
+          ok: true,
+          email,
+          list,
+          alreadyConfirmed: true,
+          sentEmail: false,
+          rev: "subscribe-v4",
+        });
+      }
 
-      const t = token();
+      // Upsert to pending
       await client.query(
-        `INSERT INTO verify_tokens (token, email, list) VALUES ($1,$2,$3)`,
-        [t, email, list]
+        `
+          insert into subscribers (email, list, status, ip, user_agent)
+          values ($1, $2, 'pending', $3, $4)
+          on conflict (email, list)
+          do update set status = 'pending',
+                        ip = excluded.ip,
+                        user_agent = excluded.user_agent,
+                        updated_at = now()
+        `,
+        [email, list, ip, ua]
+      );
+
+      if (_dryRunEmail) {
+        await client.query("COMMIT");
+        return j({ ok: true, dryRun: true, email, list, rev: "subscribe-v4" });
+      }
+
+      // Clear old tokens
+      await client.query(`delete from verify_tokens where email = $1 and list = $2`, [email, list]);
+
+      // New token (14 days)
+      const token = randomBytes(24).toString("hex");
+      await client.query(
+        `insert into verify_tokens (email, list, token, expires_at)
+         values ($1, $2, $3, now() + interval '14 days')`,
+        [email, list, token]
       );
 
       await client.query("COMMIT");
 
-      const base = baseUrl();
-      const path = list === "merch" ? "merch" : "newsletter";
-      const confirmUrl = `${base}/${path}/confirmed?confirmed=1&token=${t}`;
+      const confirmUrl = confirmLink(token, list);
 
-      const sendEmails = (process.env.SEND_EMAILS ?? "true") !== "false" && !body._dryRunEmail;
-      if (sendEmails) {
-        try {
-          await sendConfirmEmail(email, confirmUrl, list as ListType);
-        } catch (e: any) {
-          console.error("sendConfirmEmail error", e);
-          const msg = e?.message?.includes("Sender identity")
-            ? "Email sender identity not verified"
-            : e?.message || "Email send failed";
-          return bad({ error: msg }, 500);
-        }
+      // Send email (non-fatal if sending fails; token remains valid)
+      try {
+        await sendConfirmEmail({ to: email, confirmUrl, list });
+        return j({ ok: true, email, list, confirmUrl, sentEmail: true, rev: "subscribe-v4" });
+      } catch (mailErr: any) {
+        // You could optionally log mailErr here
+        return j({
+          ok: true,
+          email,
+          list,
+          confirmUrl,
+          sentEmail: false,
+          error: "email_send_failed",
+          rev: "subscribe-v4",
+        });
       }
-
-      return ok({ ok: true, confirmUrl, sentEmail: !!sendEmails });
-    } catch (err) {
-      await client.query("ROLLBACK");
-      console.error("subscribe tx error", err);
-      throw err;
+    } catch (e) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        // ignore rollback failures
+      }
+      throw e;
     } finally {
       client.release();
     }
-  } catch (err: any) {
-    console.error("subscribe fatal", err);
-    const msg =
-      err?.code === "ENOTFOUND"
-        ? "Database host not reachable"
-        : err?.code === "28P01"
-          ? "Database authentication failed"
-          : typeof err?.message === "string"
-            ? err.message
-            : "Unknown error";
-    return bad({ error: msg }, 500);
+  } catch (e: any) {
+    return j({ error: e?.message ?? String(e) }, 500);
   }
 }

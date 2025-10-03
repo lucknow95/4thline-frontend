@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "vercel-build": "next build",
     "brand:build": "node scripts/generate-brand-assets.js",
     "brand:alpha": "node scripts/make-transparent-white.js"
   },
@@ -17,21 +18,27 @@
     "gray-matter": "^4.0.3",
     "next": "15.3.4",
     "pg": "^8.16.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "rehype-stringify": "^10.0.1",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
+    "remark-rehype": "^11.1.2",
     "resend": "^4.6.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.12",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/hast": "^3.0.4",
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/unist": "^3.0.3",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
@@ -39,5 +46,8 @@
     "sharp": "^0.34.3",
     "tailwindcss": "^4.1.12",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.18.0 <23"
   }
 }

@@ -1,46 +1,58 @@
 // src/app/merch/confirmed/page.tsx
 import Link from "next/link";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
+
+type SP = Record<string, string | string[] | undefined>;
+
+function one(v: string | string[] | undefined): string | null {
+    return Array.isArray(v) ? (v[0] ?? null) : (v ?? null);
+}
+
+function isTrueish(s: string | null): boolean {
+    return typeof s === "string" && new Set(["1", "true", "success"]).has(s.toLowerCase());
+}
 
 export default async function MerchConfirmedPage({
     searchParams,
 }: {
-    searchParams: Promise<Record<string, string | string[] | undefined>>;
+    searchParams: Promise<SP>; // ✅ Next 15 expects a Promise
 }) {
-    const sp = await searchParams;
+    const sp = await searchParams; // ✅ await it
 
-    const readOne = (v: string | string[] | undefined) =>
-        Array.isArray(v) ? v[0] : v ?? null;
+    const confirmed = one(sp.confirmed);
+    const unsub = one(sp.unsub);
+    const error = one(sp.error);
 
-    const confirmed = readOne(sp.confirmed); // "1" | "true" | "success" (optional)
-    const error = readOne(sp.error);
+    const didConfirm = isTrueish(confirmed);
+    const didUnsub = isTrueish(unsub);
 
-    const success =
-        typeof confirmed === "string" &&
-        new Set(["1", "true", "success"]).has(confirmed.toLowerCase());
-
-    const title = success
-        ? "🎉 Merch Updates Confirmed"
-        : error
-            ? "Confirmation Failed"
-            : "Confirming…";
+    let title = "Confirming…";
+    if (didConfirm) title = "🎉 Merch Updates Confirmed";
+    if (didUnsub) title = "You’ve Unsubscribed from Merch Updates";
+    if (error) title = "Confirmation Failed";
 
     return (
         <main className="px-6 py-10 max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold mb-4">{title}</h1>
 
-            {success && (
+            {didConfirm && (
                 <p className="text-lg">
                     You’re on the list! You’ll be the first to hear about{" "}
                     <strong>4th Line Fantasy</strong> merch drops, exclusive offers, and early access deals.
                 </p>
             )}
 
-            {!success && !error && (
+            {didUnsub && (
                 <p className="text-lg">
-                    Processing your confirmation link… If this page doesn’t update, please open the link from
-                    your email again.
+                    You’ve been unsubscribed from <strong>Merch</strong> updates. You can re-subscribe any time on the{" "}
+                    <Link href="/merch" className="underline">Merch page</Link>.
+                </p>
+            )}
+
+            {!didConfirm && !didUnsub && !error && (
+                <p className="text-lg">
+                    Processing your confirmation link… If this page doesn’t update, please open the link from your email again.
                 </p>
             )}
 

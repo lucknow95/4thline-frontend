@@ -1,83 +1,98 @@
 // src/app/api/unsubscribe/route.ts
-import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { Pool } from "pg";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
+});
 
 type ListType = "newsletter" | "merch";
 const isList = (v: unknown): v is ListType => v === "newsletter" || v === "merch";
 
 function destFor(list: ListType, status: "success" | "invalid" | "error") {
-    return `/${list}/unsubscribe?status=${status}`;
+    const base = list === "merch" ? "/merch/confirmed" : "/newsletter/confirmed";
+    return `${base}?${status === "success" ? "unsub=1" : `status=${status}`}`;
 }
 
 function isLikelyToken(token: unknown): token is string {
-    return (
-        typeof token === "string" &&
-        token.length >= 16 &&
-        /^[A-Za-z0-9_-]+$/.test(token)
-    );
+    return typeof token === "string" && token.length >= 16 && /^[A-Za-z0-9_-]+$/.test(token);
 }
-
 function isEmail(v: unknown): v is string {
     return typeof v === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
+function pickSafeRedirect(baseUrl: URL, fallbackPath: string, hinted?: string | null) {
+    if (typeof hinted !== "string" || hinted.length === 0) return new URL(fallbackPath, baseUrl);
+    if (hinted.startsWith("http://") || hinted.startsWith("https://") || hinted.startsWith("//")) {
+        return new URL(fallbackPath, baseUrl);
+    }
+    const path = hinted.startsWith("/") ? hinted : `/${hinted}`;
+    return new URL(path, baseUrl);
+}
 
 async function unsubscribeByToken(list: ListType, token: string): Promise<"success" | "invalid"> {
-    // Flip status if not already unsubscribed
-    await db(
-        `
-      UPDATE subscribers
-         SET status = 'unsubscribed',
-             unsubscribed_at = NOW()
-       WHERE unsub_token = $1
-         AND list = $2
-         AND status <> 'unsubscribed'
-    `,
-        [token, list]
-    );
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
 
-    // Consider success if a matching row exists at all (idempotent UX)
-    const rows = await db<{ exists: boolean }>(
-        `
-      SELECT TRUE AS exists
-        FROM subscribers
-       WHERE unsub_token = $1
-         AND list = $2
-       LIMIT 1
-    `,
-        [token, list]
-    );
+        const found = await client.query<{ email: string; list: ListType }>(
+            `
+      select email, list
+        from unsub_tokens
+       where token = $1
+         and (expires_at is null or expires_at > now())
+       limit 1
+      `,
+            [token]
+        );
+        const row = found.rows[0];
+        if (!row || row.list !== list) {
+            await client.query("ROLLBACK");
+            return "invalid";
+        }
 
-    return rows.length > 0 ? "success" : "invalid";
+        await client.query(
+            `
+      update subscribers
+         set status = 'unsubscribed',
+             unsubscribed_at = now()
+       where lower(email) = lower($1)
+         and list = $2
+      `,
+            [row.email, list]
+        );
+
+        await client.query(`update unsub_tokens set used_at = now() where token = $1`, [token]);
+        await client.query(`delete from unsub_tokens where token = $1`, [token]);
+
+        await client.query("COMMIT");
+        return "success";
+    } catch {
+        try { await pool.query("ROLLBACK"); } catch { }
+        return "invalid";
+    } finally {
+        client.release();
+    }
 }
 
 async function unsubscribeByEmail(list: ListType, email: string): Promise<"success" | "invalid"> {
-    await db(
+    const res = await pool.query(
         `
-      UPDATE subscribers
-         SET status = 'unsubscribed',
-             unsubscribed_at = NOW()
-       WHERE LOWER(email) = LOWER($1)
-         AND list = $2
-         AND status <> 'unsubscribed'
+    update subscribers
+       set status = 'unsubscribed',
+           unsubscribed_at = now()
+     where lower(email) = lower($1)
+       and list = $2
     `,
         [email, list]
     );
 
-    const rows = await db<{ exists: boolean }>(
-        `
-      SELECT TRUE AS exists
-        FROM subscribers
-       WHERE LOWER(email) = LOWER($1)
-         AND list = $2
-       LIMIT 1
-    `,
-        [email, list]
-    );
-
-    return rows.length > 0 ? "success" : "invalid";
+    // rowCount can be number | null per pg types — coalesce safely
+    const rowCount = typeof res.rowCount === "number" ? res.rowCount : 0;
+    return rowCount > 0 ? "success" : "invalid";
 }
 
 export async function GET(req: NextRequest) {
@@ -87,27 +102,28 @@ export async function GET(req: NextRequest) {
 
     const token = url.searchParams.get("token");
     const email = url.searchParams.get("email");
+    const hintedRedirect = url.searchParams.get("redirect");
 
     try {
         if (isLikelyToken(token)) {
             const status = await unsubscribeByToken(list, token!);
-            return NextResponse.redirect(new URL(destFor(list, status), url), { status: 307 });
+            const location = pickSafeRedirect(url, destFor(list, status), hintedRedirect);
+            return NextResponse.redirect(location, { status: 307 });
         }
-
         if (isEmail(email)) {
             const status = await unsubscribeByEmail(list, email!);
-            return NextResponse.redirect(new URL(destFor(list, status), url), { status: 307 });
+            const location = pickSafeRedirect(url, destFor(list, status), hintedRedirect);
+            return NextResponse.redirect(location, { status: 307 });
         }
-
-        // Nothing usable provided
-        return NextResponse.redirect(new URL(destFor(list, "invalid"), url), { status: 307 });
+        const location = pickSafeRedirect(url, destFor(list, "invalid"), hintedRedirect);
+        return NextResponse.redirect(location, { status: 307 });
     } catch (err) {
         console.error("unsubscribe GET error", err);
-        return NextResponse.redirect(new URL(destFor(list, "error"), url), { status: 307 });
+        const location = pickSafeRedirect(url, destFor(list, "error"), hintedRedirect);
+        return NextResponse.redirect(location, { status: 307 });
     }
 }
 
-// Support one-click List-Unsubscribe-Post POSTs
 export async function POST(req: NextRequest) {
     let payload: Record<string, any> = {};
     try {
@@ -118,9 +134,7 @@ export async function POST(req: NextRequest) {
             const form = await req.formData();
             payload = Object.fromEntries(form.entries());
         }
-    } catch {
-        // ignore; payload stays {}
-    }
+    } catch { }
 
     const listParam = (payload.list ?? payload.List ?? "newsletter").toLowerCase();
     const list = (isList(listParam) ? listParam : "newsletter") as ListType;
@@ -135,14 +149,12 @@ export async function POST(req: NextRequest) {
                 ? NextResponse.json({ ok: true })
                 : NextResponse.json({ ok: false }, { status: 400 });
         }
-
         if (isEmail(email)) {
             const status = await unsubscribeByEmail(list, email);
             return status === "success"
                 ? NextResponse.json({ ok: true })
                 : NextResponse.json({ ok: false }, { status: 400 });
         }
-
         return NextResponse.json({ ok: false, error: "missing token/email" }, { status: 400 });
     } catch (err) {
         console.error("unsubscribe POST error", err);
