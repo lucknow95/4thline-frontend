@@ -53,6 +53,9 @@ Most importantly, Week 1 is the time to **practice the habit of maximizing man-g
 
 ---
 
+[[fanatics]]
+
+
 ## Teams with the Most Games in Week 1
 
 Week 1 of the NHL season is unique. Games don’t start until **Tuesday, Oct 7**, with only three matchups:
@@ -215,6 +218,9 @@ Use the tools at 4th Line Fantasy to:
 - Stay one week ahead of your opponent.
 
 <br><br>
+
+[[fanatics]]
+
 
 
 👉 Sign up for the [Newsletter](/newsletter) to get weekly schedule breakdowns and waiver-wire targets delivered straight to your inbox.

@@ -93,10 +93,11 @@ function remarkSingleH1(pageTitle: string): Plugin {
 
 /* =============================================================================
    remark plugin: [[fanatics ...]] shortcode → clickable brand callout
+   Supports: url, note, title
    Usage in markdown:
      [[fanatics]]
      [[fanatics note="Officially licensed gear"]]
-     [[fanatics url="https://fanatics.93n6tx.net/c/..." note="..."]]
+     [[fanatics title="Boston Bruins Hoodie" url="https://fanatics.93n6tx.net/..." note="..."]]
    ========================================================================== */
 function remarkFanaticsShortcode(): Plugin {
   const plugin: Plugin = function thisPlugin(): Transformer {
@@ -118,6 +119,7 @@ function remarkFanaticsShortcode(): Plugin {
         re.lastIndex = 0;
         if (!m) return;
 
+        // parse key="value" pairs
         const attrs = m[1] ?? "";
         const kv: Record<string, string> = {};
         attrs.replace(/(\w+)\s*=\s*"([^"]*)"/g, (_: any, k: string, v: string) => {
@@ -143,6 +145,10 @@ function remarkFanaticsShortcode(): Plugin {
         }
 
         const note = kv.note || "Officially licensed gear";
+        const heading =
+          kv.title && kv.title.trim().length > 0
+            ? kv.title
+            : "Get your licensed gear at Fanatics";
 
         parent.children.splice(index, 1, {
           type: "html",
@@ -153,13 +159,13 @@ function remarkFanaticsShortcode(): Plugin {
   <div class="flex items-center justify-between gap-4">
     <div class="flex items-center gap-2">
       <img src="${escapeHtml(AFFILIATES.fanatics.logoSrc)}" alt="Fanatics" class="h-4 w-auto" />
-      <div class="text-sm uppercase tracking-wide text-[#0F2A44]/70 font-semibold">Fanatics Pick</div>
+      <div class="text-sm uppercase tracking-wide text-[#0F2A44]/70 font-semibold">FANATICS PICK</div>
     </div>
     <div class="hidden sm:block rounded-full px-3 py-1 text-xs font-semibold bg-[#0F2A44] text-white">
       Shop Fanatics →
     </div>
   </div>
-  <div class="mt-2 text-lg font-bold text-[#0F2A44]">Get your licensed gear at Fanatics</div>
+  <div class="mt-2 text-lg font-bold text-[#0F2A44]">${escapeHtml(heading)}</div>
   ${note ? `<div class="mt-1 text-sm text-[#0F2A44]/80">${escapeHtml(note)}</div>` : ""}
 </a>`.trim(),
         });
@@ -324,7 +330,7 @@ export default async function BlogPostPage({
         <div className="mb-6">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0_16px_#FF8A00]"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
             aria-label="Back to blog"
           >
             ← Back to Blog
@@ -420,7 +426,6 @@ export default async function BlogPostPage({
             <AffiliateDisclosure />
           </div>
         </article>
-
 
         <div className="mt-8">
           <Link

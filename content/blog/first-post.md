@@ -66,6 +66,9 @@ Thank you for checking out 4th Line Fantasy!
 
 <br><br>
 
+[[fanatics]]
+
+
 Make sure to bookmark the site, sign up for the [Newsletter](/newsletter), and follow along as we grow our tools and content throughout the season.
 
 <br><br>
