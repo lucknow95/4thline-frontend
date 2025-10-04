@@ -112,8 +112,7 @@ Smart managers don’t just stream for this week — they set up the next one to
 👉 Pro tip: If you have a move left on **Sunday night in Week 1**, don’t waste it. Add a player from one of these Week 2 teams so you start the new week with an edge.  
 
 ---
-[[fanatics title="Boston Bruins Hoodie" url="https://fanatics.93n6tx.net/c/6390525/586570/9663" note="Officially licensed gear"]]
-
+[[fanatics]]
 
 ## Final Thoughts
 
