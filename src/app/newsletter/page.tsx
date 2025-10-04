@@ -1,4 +1,6 @@
 // src/app/newsletter/page.tsx
+import FanaticsCallout from "@/components/affiliate/FanaticsCallout";
+import AffiliateDisclosure from "@/components/AffiliateDisclosure";
 import SubscribeForm from "@/components/SubscribeForm";
 import Link from "next/link";
 
@@ -7,7 +9,6 @@ type VerifyKey =
   | "invalid"
   | "missing"
   | "error"
-  // legacy values you used previously:
   | "1"
   | "expired"
   | "nosub"
@@ -16,13 +17,10 @@ type VerifyKey =
 type UnsubKey = "success" | "invalid" | "missing" | "error" | undefined;
 
 type Props = {
-  // In App Router server components, searchParams can be awaited in your setup.
   searchParams: Promise<{
-    // current keys used by routes we added:
     verify?: "success" | "invalid" | "missing" | "error";
     unsub?: UnsubKey;
     list?: string;
-    // legacy key you already had on the page:
     verified?: VerifyKey;
   }>;
 };
@@ -44,7 +42,7 @@ function Banner({
         : "bg-rose-50 border-rose-200 text-rose-800";
 
   return (
-    <div className={`mb-6 rounded-xl border p-4 ${styles}`}>
+    <div className={`rounded-xl border p-4 ${styles}`}>
       <div className="font-semibold">{title}</div>
       <div className="mt-1 text-sm opacity-90">{message}</div>
     </div>
@@ -53,14 +51,12 @@ function Banner({
 
 function VerifiedBanner(value?: VerifyKey) {
   if (!value) return null;
-
-  // Normalize newer values to your legacy ones:
   const v =
     value === "success"
       ? "1"
       : value === "invalid" || value === "missing" || value === "error"
         ? value
-        : value; // "expired" | "nosub" | "1" remain as-is
+        : value;
 
   switch (v) {
     case "1":
@@ -154,49 +150,64 @@ function UnsubBanner(value?: UnsubKey) {
 }
 
 export default async function Page({ searchParams }: Props) {
-  // await searchParams for your current typing
   const params = await searchParams;
-
-  // Accept both the new (`verify`) and legacy (`verified`) keys
   const verified: VerifyKey = (params.verify as VerifyKey) ?? params.verified;
   const unsub: UnsubKey = params.unsub;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      {/* Banners for verify/unsub outcomes */}
-      {VerifiedBanner(verified)}
-      {UnsubBanner(unsub)}
+      {/* one vertical stack controls spacing consistently */}
+      <div className="flex flex-col gap-10">
+        {VerifiedBanner(verified)}
+        {UnsubBanner(unsub)}
 
-      {/* Newsletter header */}
-      <h1 className="text-3xl font-bold tracking-tight">Newsletter</h1>
-      <p className="mt-2 text-sm text-neutral-600">
-        Get weekly fantasy insights, schedule edges, and site updates. (Daily digests
-        coming for paid users later.)
-      </p>
+        <header>
+          <h1 className="text-3xl font-bold tracking-tight">Newsletter</h1>
+          <p className="mt-2 text-sm text-neutral-600">
+            Get weekly fantasy insights, schedule edges, and site updates. (Daily digests coming
+            for paid users later.)
+          </p>
+        </header>
 
-      {/* Working client-driven subscribe form that posts JSON to /api/subscribe */}
-      <div className="mt-6 rounded-xl border p-4">
-        <SubscribeForm list="newsletter" />
-        <p className="mt-2 text-xs text-neutral-500">
-          By subscribing you consent to receive emails from 4th Line Fantasy. You can
-          unsubscribe at any time.
-        </p>
-      </div>
+        {/* Subscribe card — clamp children to card width */}
+        <section
+          className="
+            rounded-xl border p-4 overflow-hidden max-w-full
+            break-words
+            [&_form]:w-full [&_form]:max-w-full
+            [&_input]:w-full [&_input]:max-w-full [&_input]:min-w-0
+            [&_button]:shrink-0 [&_button]:whitespace-nowrap
+          "
+        >
+          <SubscribeForm list="newsletter" />
+          <p className="mt-2 text-xs text-neutral-500">
+            By subscribing you consent to receive emails from 4th Line Fantasy. You can
+            unsubscribe at any time.
+          </p>
+        </section>
 
-      {/* Helpful links */}
-      <div className="mt-8 text-sm text-neutral-600">
-        <p>Accidentally unsubscribed? Re-enter your email above to re-subscribe.</p>
-        <p className="mt-2">
-          Head back to{" "}
-          <Link href="/" className="underline underline-offset-4">
-            Home
-          </Link>{" "}
-          or{" "}
-          <Link href="/rankings" className="underline underline-offset-4">
-            Player Rankings
-          </Link>
-          .
-        </p>
+        <section className="text-sm text-neutral-600">
+          <p>Accidentally unsubscribed? Re-enter your email above to re-subscribe.</p>
+          <p className="mt-2">
+            Head back to{" "}
+            <Link href="/" className="underline underline-offset-4">
+              Home
+            </Link>{" "}
+            or{" "}
+            <Link href="/rankings" className="underline underline-offset-4">
+              Player Rankings
+            </Link>
+            .
+          </p>
+        </section>
+
+        {/* Fanatics callout (second-last) */}
+        <FanaticsCallout />
+
+        {/* Affiliate Disclosure (last) */}
+        <footer>
+          <AffiliateDisclosure />
+        </footer>
       </div>
     </main>
   );

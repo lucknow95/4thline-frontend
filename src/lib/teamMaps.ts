@@ -29,15 +29,13 @@ export const fullTeamToAbbr: Record<string, string> = {
   'St. Louis Blues': 'STL',
   'Tampa Bay Lightning': 'TBL',
   'Toronto Maple Leafs': 'TOR',
-  // Utah: post-relocation placeholder name commonly used in 2025–26
+  // Utah (standardize on UTA; keep HC for back-compat)
   'Utah Hockey Club': 'UTA',
-    'Utah Mammoth': 'UTA',
+  'Utah Mammoth': 'UTA',
   'Vancouver Canucks': 'VAN',
   'Vegas Golden Knights': 'VGK',
   'Washington Capitals': 'WSH',
   'Winnipeg Jets': 'WPG',
-
-
 };
 
 /**
@@ -49,28 +47,28 @@ export const cityToAbbr: Record<string, string> = {
   Boston: 'BOS',
   Buffalo: 'BUF',
   Calgary: 'CGY',
-  Carolina: 'CAR', // sometimes appears as a region-style label
+  Carolina: 'CAR',
   Chicago: 'CHI',
-  Colorado: 'COL', // appears as "Colorado" in some feeds
+  Colorado: 'COL',
   Columbus: 'CBJ',
   Dallas: 'DAL',
   Detroit: 'DET',
   Edmonton: 'EDM',
-  Florida: 'FLA', // Panthers sometimes appear as "Florida"
+  Florida: 'FLA',
   'Los Angeles': 'LAK',
   Minnesota: 'MIN',
   Montreal: 'MTL',
-  Montréal: 'MTL', // accent variant
+  Montréal: 'MTL',
   Nashville: 'NSH',
   'New Jersey': 'NJD',
 
-  // New York is ambiguous (Rangers/Islanders). Include disambiguators commonly used by feeds.
+  // New York is ambiguous — include common disambiguators:
   'New York Islanders': 'NYI',
   'New York Rangers': 'NYR',
   'NY Islanders': 'NYI',
   'NY Rangers': 'NYR',
-  'NYI': 'NYI',
-  'NYR': 'NYR',
+  NYI: 'NYI',
+  NYR: 'NYR',
 
   Ottawa: 'OTT',
   Philadelphia: 'PHI',
@@ -78,18 +76,16 @@ export const cityToAbbr: Record<string, string> = {
   'San Jose': 'SJS',
   Seattle: 'SEA',
   'St. Louis': 'STL',
-  'Saint Louis': 'STL', // alt spelling
+  'Saint Louis': 'STL',
   'Tampa Bay': 'TBL',
-  Tampa: 'TBL', // short city alias used by some feeds
+  Tampa: 'TBL',
   Toronto: 'TOR',
   Utah: 'UTA',
   Vancouver: 'VAN',
   Vegas: 'VGK',
-  'Las Vegas': 'VGK', // occasionally appears this way
+  'Las Vegas': 'VGK',
   Washington: 'WSH',
   Winnipeg: 'WPG',
-
-
 };
 
 /** Convenience: try full name first, then city/short label */
@@ -98,11 +94,9 @@ export function resolveAbbr(name: string): string | null {
   if (fullTeamToAbbr[name]) return fullTeamToAbbr[name];
   if (cityToAbbr[name]) return cityToAbbr[name];
 
-// Light fallback: try first word as a city hint (e.g., "Colorado Avalanche" -> "Colorado")
-const firstWord = name.trim().split(/\s+/)[0] ?? '';
-if (firstWord && cityToAbbr[firstWord]) {
-  return cityToAbbr[firstWord];
-}
+  // Light fallback: try first word as a city hint (e.g., "Colorado Avalanche" -> "Colorado")
+  const firstWord = name.trim().split(/\s+/)[0] ?? '';
+  if (firstWord && cityToAbbr[firstWord]) return cityToAbbr[firstWord];
 
   return null;
 }

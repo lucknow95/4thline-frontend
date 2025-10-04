@@ -1,6 +1,7 @@
-import { getCrunchPalaceRows, CURRENT_SEASON } from '@/lib/crunchPalace';
+// src/app/crunch-palace/page.tsx
 import FanaticsCallout from '@/components/affiliate/FanaticsCallout';
 import AffiliateDisclosure from '@/components/AffiliateDisclosure';
+import { CURRENT_SEASON, getCrunchPalaceRows } from '@/lib/crunchPalace';
 import CrunchPalaceClient from './CrunchPalaceClient';
 
 export const dynamic = 'force-dynamic';
@@ -15,30 +16,33 @@ export default async function CrunchPalacePage() {
       ? rows
       : devFallbackEnabled
         ? [
-            {
-              season: CURRENT_SEASON,
-              team_abbr: 'FLA',
-              team_full: 'Florida Panthers',
-              arena_name: 'Amerant Bank Arena',
-              home_games: 2,
-              total_hits: 42,
-              hits_per_game: 21,
-            },
-            {
-              season: CURRENT_SEASON,
-              team_abbr: 'VGK',
-              team_full: 'Vegas Golden Knights',
-              arena_name: 'T-Mobile Arena',
-              home_games: 2,
-              total_hits: 39,
-              hits_per_game: 19.5,
-            },
-          ]
+          {
+            season: CURRENT_SEASON,
+            team_abbr: 'FLA',
+            team_full: 'Florida Panthers',
+            arena_name: 'Amerant Bank Arena',
+            home_games: 2,
+            total_hits: 42,
+            hits_per_game: 21,
+          },
+          {
+            season: CURRENT_SEASON,
+            team_abbr: 'VGK',
+            team_full: 'Vegas Golden Knights',
+            arena_name: 'T-Mobile Arena',
+            home_games: 2,
+            total_hits: 39,
+            hits_per_game: 19.5,
+          },
+        ]
         : [];
 
   return (
     <main className="max-w-4xl mx-auto py-10 px-4">
+      {/* The client component renders the table, toggle, and sorting */}
       <CrunchPalaceClient initialRows={data} hasData={rows.length > 0} />
+
+      {/* Fanatics banner at the bottom, same width as page content */}
       <div className="mt-10">
         <FanaticsCallout className="mt-8" />
         <AffiliateDisclosure />
