@@ -31,6 +31,7 @@ export const fullTeamToAbbr: Record<string, string> = {
   'Toronto Maple Leafs': 'TOR',
   // Utah: post-relocation placeholder name commonly used in 2025–26
   'Utah Hockey Club': 'UTA',
+    'Utah Mammoth': 'UTA',
   'Vancouver Canucks': 'VAN',
   'Vegas Golden Knights': 'VGK',
   'Washington Capitals': 'WSH',
