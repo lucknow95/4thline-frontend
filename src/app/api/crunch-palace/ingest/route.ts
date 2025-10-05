@@ -1,29 +1,64 @@
 // src/app/api/crunch-palace/ingest/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { upsertHomeGameStat, abbrToFull, arenaForTeamFull, CURRENT_SEASON } from '@/lib/crunchPalace';
+import {
+  abbrToFull,
+  arenaForTeamFull,
+  CURRENT_SEASON,
+  // optional helper — implement this in your lib to run
+  // `REFRESH MATERIALIZED VIEW CONCURRENTLY cp_team_hits_agg`
+  refreshCrunchPalaceAgg,
+  upsertHomeGameStat,
+} from '@/lib/crunchPalace';
 import { resolveAbbr } from '@/lib/teamMaps';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type ProviderRow = {
   game_id: string;
-  date: string; // YYYY-MM-DD (America/Toronto)
-  home_team: string; // can be abbr or full/city (we'll normalize)
+  date: string; // YYYY-MM-DD (America/Toronto local date)
+  home_team: string; // abbr or full/city; we'll normalize
   home_hits: number;
   is_regular_season: boolean;
 };
 
 /**
- * TODO: Wire to MySportsFeeds.
- * For now, this returns an empty array so prod shows "No data yet" until MSF is connected.
- * Implement by day (local ET). You can also accept a date range if MSF supports it.
+ * TODO: Wire to MySportsFeeds (MSF).
+ *
+ * Notes:
+ * - Use MSF creds from env: MSF_API_USERNAME/MSF_API_PASSWORD (or MSF_API_KEY).
+ * - Fetch by *local date* (America/Toronto) and exclude preseason.
+ * - Map provider payload -> ProviderRow[] exactly as below.
  */
 async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> {
-  // Example outline (pseudo):
-  // const apiKey = process.env.MYSPORTSFEEDS_API_KEY!;
-  // const resp = await fetch(`https://api.mysportsfeeds.com/v3/pull/nhl/2025-2026/date/${dateYmd}/games.json`, { headers: { Authorization: `Basic ${btoa(apiKey + ':MYSPORTSFEEDS')}` }});
-  // Map provider payload -> ProviderRow[]
+  const username = process.env.MSF_API_USERNAME;
+  const password = process.env.MSF_API_PASSWORD;
+  const apiKey = process.env.MSF_API_KEY;
+
+  // If not configured yet, no-op so prod shows "No data yet" gracefully.
+  if ((!username || !password) && !apiKey) return [];
+
+  // 🔒 Implement the real MSF call here when ready.
+  // Example outline:
+  // const seasonPath = process.env.CP_SEASON?.replace('-', '') ?? '202526';
+  // const yyyymmdd = dateYmd.replace(/-/g, '');
+  // const url = `https://api.mysportsfeeds.com/v3/pull/nhl/${seasonPath}/date/${yyyymmdd}/games.json`;
+  // const authHeader = apiKey
+  //   ? `Basic ${Buffer.from(apiKey + ':MYSPORTSFEEDS').toString('base64')}`
+  //   : `Basic ${Buffer.from(username + ':' + password).toString('base64')}`;
+  // const resp = await fetch(url, { headers: { Authorization: authHeader } });
+  // if (!resp.ok) throw new Error(`MSF fetch failed ${resp.status}`);
+  // const json = await resp.json();
+  // return json.games
+  //   .filter((g: any) => g.schedule?.gameType === 'REG') // exclude preseason
+  //   .map((g: any) => ({
+  //     game_id: String(g.schedule?.id ?? g.game?.id ?? `${dateYmd}-${g.schedule?.homeTeam?.abbreviation ?? 'UNK'}`),
+  //     date: dateYmd,
+  //     home_team: g.schedule?.homeTeam?.abbreviation ?? g.schedule?.homeTeam?.name ?? '',
+  //     home_hits: Number(g.stats?.homeTeam?.hits ?? 0),
+  //     is_regular_season: true,
+  //   }));
+
   return [];
 }
 
@@ -58,7 +93,6 @@ function parseRange(req: NextRequest) {
   defaultFrom.setDate(defaultFrom.getDate() - 1);
 
   if (date) return { from: date, to: date, dry, season };
-
   if (from && to) return { from, to, dry, season };
 
   const y = defaultFrom.getFullYear();
@@ -70,24 +104,35 @@ function parseRange(req: NextRequest) {
 
 /** Normalize a provider team label to our UTA-style abbr */
 function normalizeAbbr(s: string): string | null {
-  // If provider already sends 3-letter code:
+  if (!s) return null;
+  // Already a 3-letter code?
   if (s.length === 3 && /^[A-Z]{3}$/.test(s)) return s;
-  // Try resolving from our maps:
+  // Resolve from our maps:
   return resolveAbbr(s);
 }
 
 export async function POST(req: NextRequest) {
+  // 1) 🔒 Cron auth
+  const secret = req.headers.get('x-cron-secret');
+  const expected = process.env.CP_CRON_SECRET;
+  if (!expected || secret !== expected) {
+    return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+  }
+
   const { from, to, dry, season } = parseRange(req);
 
   try {
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
+    let attempted = 0;
     let inserted = 0;
+
     for (const ymd of dateIter(fromDate, toDate)) {
       const rows = await fetchMSFHomeHitsForDate(ymd);
 
       for (const r of rows) {
+        attempted++;
         if (!r.is_regular_season) continue;
 
         const abbr = normalizeAbbr(r.home_team);
@@ -112,8 +157,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, from, to, season, inserted, dryRun: dry });
+    // 2) 🔄 Refresh materialized view (only if we actually wrote data)
+    if (!dry && inserted > 0 && typeof refreshCrunchPalaceAgg === 'function') {
+      await refreshCrunchPalaceAgg(); // internally runs: REFRESH MATERIALIZED VIEW CONCURRENTLY cp_team_hits_agg
+    }
+
+    return NextResponse.json({
+      ok: true,
+      season,
+      from,
+      to,
+      dryRun: dry,
+      attempted,
+      inserted,
+    });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message ?? String(err) }, { status: 500 });
+    // Helpful error text for logs
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? String(err) },
+      { status: 500 },
+    );
   }
 }
