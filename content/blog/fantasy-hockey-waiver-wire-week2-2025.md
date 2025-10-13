@@ -5,7 +5,6 @@ excerpt: "Week 2 (Oct 13–19) is packed with four-game teams. Target those with
 tags: ["fantasy hockey", "waiver wire", "streamers", "week 2"]
 categories: ["Waiver Wire"]
 description: "Maximize your fantasy hockey matchup in Week 2 (Oct 13–19, 2025). Target teams with four games and off-night schedules to stream smart and win the week."
-
 ---
 
 # Fantasy Hockey Waiver Wire Picks – Week 2 (2025)
@@ -67,10 +66,10 @@ Below are the best schedule shapes for streaming value.
 - **Minnesota Wild** – Monday, Tuesday, Friday, Saturday  
 - **Tampa Bay Lightning** – Monday, Tuesday, Friday, Saturday  
 - **Vancouver Canucks** – Monday, Thursday, Friday, Sunday  
-- **Florida Panthers** – Wednesday, Thursday, Saturday, Sunday  
-- **Ottawa Senators** – Wednesday, Thursday, Saturday, Sunday  
+- **Florida Panthers** – **Monday, Wednesday, Thursday, Saturday**  
+- **Ottawa Senators** – **Monday, Wednesday, Thursday, Saturday**  
 - **Edmonton Oilers** – Tuesday, Thursday, Saturday, Sunday  
-- **Boston Bruins** – Tuesday, Thursday, Saturday, Sunday  
+- **Boston Bruins** – **Monday, Thursday, Saturday, Sunday**  
 
 Each of these teams includes at least **one off-night** opportunity — perfect for squeezing in a few extra starts.
 
