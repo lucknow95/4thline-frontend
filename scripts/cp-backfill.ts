@@ -14,10 +14,17 @@
 //   #   node --require dotenv/config --loader ts-node/esm scripts/cp-backfill.ts
 //
 // Required env (in .env.local or set in shell):
-//   DATABASE_URL=postgresql://...      (used by lib's pg Pool)
+//   DATABASE_URL=postgresql://...                    (used by lib's pg Pool)
 //   CP_SEASON=2025-26
-//   CP_SEASON_START=2025-10-06         (optional override; defaults to Oct 1 of start year)
-//   MSF_API_USERNAME / MSF_API_PASSWORD  or  MSF_API_KEY (alias: MYSPORTSFEEDS_API_KEY)
+//   CP_SEASON_START=2025-10-06                       (optional; default is season-appropriate)
+//
+//   1️⃣ MSF_API_KEY=your_mysportsfeeds_api_key_here   <-- put this in .env.local (do NOT hardcode in code)
+//
+//   2️⃣ In production (Vercel), also add MSF_API_KEY in Project → Settings → Environment Variables
+//
+//   3️⃣ If your local DB connection needs SSL, use ?sslmode=require on DATABASE_URL
+//
+//   4️⃣ After saving .env.local, open a NEW terminal before running the script
 
 import {
     abbrToFull,
@@ -93,46 +100,68 @@ function todayInToronto(): Date {
 }
 
 /* -----------------------------------------------------------------------------
-   Provider fetch (MSF v3 -> fallback v2.1)
-   Returns only HOME rows and only REG season rows.
+   Season helpers
 ----------------------------------------------------------------------------- */
-async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> {
-    const username = process.env.MSF_API_USERNAME;
-    const password = process.env.MSF_API_PASSWORD;
-    // accept either MSF_API_KEY or MYSPORTSFEEDS_API_KEY
-    const apiKey = process.env.MSF_API_KEY ?? process.env.MYSPORTSFEEDS_API_KEY;
+function toMSFSeasonPath(season: string): string {
+    // Convert "YYYY-YY" → "YYYY-YYYY-regular"
+    const [startStr, endShort] = season.split('-');
+    const start = Number(startStr);
+    const endFull = endShort?.length === 2 ? `20${endShort}` : endShort;
+    if (!Number.isFinite(start) || !endFull) {
+        throw new Error(`Bad CP_SEASON: ${season}`);
+    }
+    return `${start}-${endFull}-regular`;
+}
 
-    // If not configured yet, no-op (script will insert 0 rows and continue).
-    if ((!username || !password) && !apiKey) {
+function defaultSeasonStart(season: string): string {
+    // For 2025-26 the NHL regular season starts Oct 6, 2025 (project baseline).
+    if (season === '2025-26') return '2025-10-06';
+    // Reasonable default for other seasons: Oct 1 of the start year
+    const startYear = Number(season.split('-')[0]);
+    return `${startYear}-10-01`;
+}
+
+/* -----------------------------------------------------------------------------
+   Provider fetch (API key only)
+   - Uses MSF v3 first; falls back to v2.1 if v3 returns 400/404.
+   - Returns only HOME rows and only REG season rows.
+----------------------------------------------------------------------------- */
+const MSF_API_KEY = process.env.MSF_API_KEY; // 1️⃣ must be set in .env.local
+
+function msfAuthHeader(): string {
+    if (!MSF_API_KEY) {
+        console.warn('[MSF] API key not found. Set MSF_API_KEY in .env.local');
+        return '';
+    }
+    // MSF uses Basic auth: username = API key, password = "MYSPORTSFEEDS"
+    return `Basic ${Buffer.from(`${MSF_API_KEY}:MYSPORTSFEEDS`).toString('base64')}`;
+}
+
+async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> {
+    if (!MSF_API_KEY) {
         console.warn(`[MSF] Credentials not configured; ${dateYmd} will ingest 0 rows.`);
         return [];
     }
 
-    const season = (process.env.CP_SEASON || CURRENT_SEASON).trim();
-
-    // v3 typically wants seasons like 202526 (from "2025-26"); v2.1 wants "2025-2026-regular"
-    const v3Season = season.replace('-', ''); // "202526"
-    const v21Season = (() => {
-        const [s, e] = season.split('-');
-        const end = e?.length === 2 ? `20${e}` : e;
-        return `${s}-${end}-regular`; // "2025-2026-regular"
-    })();
-
+    const seasonRaw = (process.env.CP_SEASON || CURRENT_SEASON).trim();
+    const vSeason = toMSFSeasonPath(seasonRaw); // e.g., "2025-2026-regular"
     const yyyymmdd = dateYmd.replace(/-/g, '');
-
-    // Build auth header (works for both auth styles)
-    const authHeader = apiKey
-        ? `Basic ${Buffer.from(`${apiKey}:MYSPORTSFEEDS`).toString('base64')}`
-        : `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const Authorization = msfAuthHeader();
 
     const tryV3 = async (): Promise<ProviderRow[] | null> => {
-        const url = `https://api.mysportsfeeds.com/v3/pull/nhl/${v3Season}/date/${yyyymmdd}/games.json`;
-        const resp = await fetch(url, { headers: { Authorization: authHeader } });
-        if (resp.status === 404) return null; // try fallback
+        const url = `https://api.mysportsfeeds.com/v3/pull/nhl/${vSeason}/date/${yyyymmdd}/games.json`;
+        const resp = await fetch(url, { headers: { Authorization } });
+
+        // Common "no games / out of range" statuses → fall back
+        if (resp.status === 404 || resp.status === 400) {
+            console.warn(`[MSF v3] ${dateYmd} ${resp.status} ${resp.statusText} :: ${url}`);
+            return null; // try fallback
+        }
         if (!resp.ok) {
-            console.warn(`[MSF v3] ${dateYmd} ${resp.status} ${resp.statusText}`);
+            console.warn(`[MSF v3] ${dateYmd} ${resp.status} ${resp.statusText} :: ${url}`);
             return null;
         }
+
         const json: any = await resp.json();
         const games = Array.isArray(json?.games) ? json.games : [];
 
@@ -141,7 +170,7 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
             const sched = g.schedule ?? g.game ?? {};
             const stats = g.stats ?? {};
             const gameType = sched.gameType || sched.scheduleStatus || '';
-            const isReg = String(gameType).toUpperCase().includes('REG');
+            const isReg = String(gameType).toUpperCase().includes('REG'); // "REG" or "REGULAR"
 
             // Prefer abbreviation, fall back to name
             const homeAbbr =
@@ -149,9 +178,17 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
                 sched.homeTeamAbbreviation ??
                 sched.homeTeam?.name ??
                 '';
-            const homeHitsRaw = (stats?.homeTeam?.hits ?? stats?.home?.hits ?? 0) as unknown;
 
-            const homeHits = Number(homeHitsRaw);
+            // Robust hits extraction across payload shapes
+            const hitsCandidates = [
+                stats?.homeTeam?.hits,
+                stats?.home?.hits,
+                stats?.homeTeamStats?.hits,
+                stats?.homeTeam?.teamStats?.hits,
+            ];
+            const hitsFirst = hitsCandidates.find((x) => x !== undefined);
+            const homeHits = Number(hitsFirst ?? 0);
+
             rows.push({
                 game_id: String(sched.id ?? `${dateYmd}-${homeAbbr || 'UNK'}`),
                 date: dateYmd,
@@ -164,16 +201,22 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
     };
 
     const tryV21 = async (): Promise<ProviderRow[] | null> => {
-        // v2.1 team_gamelogs by date
-        const url = `https://api.mysportsfeeds.com/v2.1/pull/nhl/${v21Season}/team_gamelogs.json?date=${yyyymmdd}`;
-        const resp = await fetch(url, { headers: { Authorization: authHeader } });
-        if (resp.status === 404) return []; // no games that day
+        // ✅ FIX: v2.1 needs a single-day DATE RANGE (YYYYMMDD-YYYYMMDD)
+        const dateRange = `${yyyymmdd}-${yyyymmdd}`;
+        const url = `https://api.mysportsfeeds.com/v2.1/pull/nhl/${vSeason}/team_gamelogs.json?date=${dateRange}`;
+        const resp = await fetch(url, { headers: { Authorization } });
+
+        // MSF often returns 400/404 when no games fall within the season slice for that date.
+        if (resp.status === 404 || resp.status === 400) {
+            console.warn(`[MSF v2.1] ${dateYmd} ${resp.status} ${resp.statusText} :: ${url}`);
+            return []; // treat as "no games that day"
+        }
         if (!resp.ok) {
-            console.warn(`[MSF v2.1] ${dateYmd} ${resp.status} ${resp.statusText}`);
+            console.warn(`[MSF v2.1] ${dateYmd} ${resp.status} ${resp.statusText} :: ${url}`);
             return null;
         }
-        const json: any = await resp.json();
 
+        const json: any = await resp.json();
         // Common v2.1 shapes; normalize:
         const logs = json?.teamgamelogs ?? json?.teamGameLogs ?? json?.gamelogs ?? [];
         const rows: ProviderRow[] = [];
@@ -183,7 +226,7 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
             const game = lg?.game || lg?.gameSchedule || {};
             const stats = lg?.stats || lg?.teamStats || {};
             const gameType = game?.gameType || game?.gameScheduleType || '';
-            const isReg = String(gameType).toUpperCase().includes('REG');
+            const isReg = String(gameType).toUpperCase().includes('REG'); // "REGULAR" etc.
 
             // Only keep HOME rows; many v2.1 payloads include homeOrAway
             const hoa = (lg?.homeOrAway ?? lg?.isHomeTeam) as string | boolean | undefined;
@@ -197,12 +240,10 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
             if (!isHome) continue;
 
             const homeAbbr = team?.abbreviation ?? team?.abbrev ?? team?.name ?? '';
-            const hitsRaw =
-                stats?.hits?.overall ??
-                stats?.hits ??
-                0;
 
-            const homeHits = Number(hitsRaw);
+            const hitsCandidates = [stats?.hits?.overall, stats?.hits];
+            const hitsFirst = hitsCandidates.find((x) => x !== undefined);
+            const homeHits = Number(hitsFirst ?? 0);
 
             rows.push({
                 game_id: String(game?.id ?? `${dateYmd}-${homeAbbr || 'UNK'}`),
@@ -217,7 +258,7 @@ async function fetchMSFHomeHitsForDate(dateYmd: string): Promise<ProviderRow[]> 
 
     try {
         const v3 = await tryV3();
-        if (v3 !== null) return v3; // got data (or empty array) from v3
+        if (v3 !== null) return v3; // got data (or empty) from v3
     } catch (e: any) {
         console.warn(`[MSF v3] ${dateYmd} threw`, String(e?.message ?? e));
     }
@@ -258,12 +299,9 @@ async function backfill() {
         throw new Error(`Invalid CP_SEASON format "${season}". Expected "YYYY-YY" (e.g., 2025-26).`);
     }
 
-    // Default start: Oct 1 of the first year in season (e.g., 2025-10-01)
-    const startYear = Number(season.split('-')[0]);
-    const defaultStart = `${startYear}-10-01`;
-
-    const startStr = (process.env.CP_SEASON_START ?? defaultStart).trim();
-    const start = parseISODate(startStr);
+    // Season-aware default start:
+    const startDefault = (process.env.CP_SEASON_START || defaultSeasonStart(season)).trim();
+    const start = parseISODate(startDefault);
 
     // If user mistakenly sets a start in the future, bail early
     const todayLocal = todayInToronto();
@@ -302,7 +340,7 @@ async function backfill() {
                 const abbr = normalizeAbbr(r.home_team);
                 if (!abbr) continue;
 
-                const teamFull = abbrToFull[abbr] ?? r.home_team;
+                const teamFull = (abbrToFull as Record<string, string>)[abbr] ?? r.home_team;
                 const arena = arenaForTeamFull(teamFull);
 
                 await upsertHomeGameStat({
@@ -318,13 +356,13 @@ async function backfill() {
                 insertedForDay++;
             }
 
-            totalInserted += insertedForDay;
             console.log(
                 `${dateStr}: fetched=${rows.length}, inserted=${insertedForDay}${rows.length && rows.length !== insertedForDay
                     ? ` (skipped ${rows.length - insertedForDay})`
                     : ''
                 }`
             );
+            totalInserted += insertedForDay;
         } catch (err: any) {
             console.error(`${dateStr}: error`, err?.message ?? String(err));
         }
