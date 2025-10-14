@@ -5,7 +5,9 @@ excerpt: "A relentless wrecking ball who delivers nearly six hits per game — a
 tags: ["Banger League Legends", "Fantasy Hockey", "Hits", "Vancouver Canucks"]
 categories: ["Player Profiles", "Banger League Legends"]
 author: "4th Line Fantasy"
-thumbnail: thumbnail: "/blog/legends/sherwood.jpg?v=2"
+thumbnail: "/og/default-og.png"
+
+
 player:
   name: "Kiefer Sherwood"
   team: "Vancouver Canucks"
@@ -156,7 +158,7 @@ If his Vancouver usage includes a second-unit PK role, expect even more hit oppo
 
 <h3 class="text-base md:text-lg font-semibold mt-6 mb-2">Verdict</h3>
 Sherwood is a dream depth add for banger formats — consistent, violent, and predictable.  
-If Vancouver continues to deploy him as they have been, expect him to remain amongst league wide hit leaders while chipping in double digit goals in 25/26. Even though the Canucks themselves do not have a strong playoff schedule, having this wrecking ball rostered should easily sway the hits in your favor and offering a great floor in points leagues as well</strong>.
+If Vancouver continues to deploy him as they have been, expect him to remain amongst league wide hit leaders while chipping in double digit goals in 25/26. Even though the Canucks themselves do not have a strong playoff schedule, having this wrecking ball rostered should easily sway the hits in your favor and offering a great floor in points leagues as well.
 
 ---
 
