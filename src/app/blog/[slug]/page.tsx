@@ -28,7 +28,6 @@ const AFFILIATES = {
       utm_medium: "blog",
       utm_campaign: "affiliate",
     } as Record<string, string>,
-    // tiny logo used inside the callout box
     logoSrc: "/images/brands/fanatics.jpeg",
   },
 };
@@ -41,7 +40,6 @@ const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 function normalizeTitle(s: string) {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
-
 function escapeHtml(s: string) {
   return s
     .replaceAll("&", "&amp;")
@@ -50,7 +48,6 @@ function escapeHtml(s: string) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
 function loadPost(slug: string) {
   const md = path.join(BLOG_DIR, `${slug}.md`);
   const mdx = path.join(BLOG_DIR, `${slug}.mdx`);
@@ -61,63 +58,48 @@ function loadPost(slug: string) {
 }
 
 /* =============================================================================
-   remark plugin: ensure single H1
+   remark plugins (single H1 + fanatics shortcode) and rehype decorator
    ========================================================================== */
 function remarkSingleH1(pageTitle: string): Plugin {
   const plugin: Plugin = function thisPlugin(): Transformer {
     return (tree: any) => {
       let removedMatchingH1 = false;
-
       (visit as any)(tree, "heading", (node: any, index?: number, parent?: any) => {
         if (!parent || index == null) return;
         if (node.depth !== 1) return;
-
         const text = (node.children ?? [])
           .filter((c: any) => c.type === "text" || c.type === "inlineCode")
           .map((c: any) => String(c.value ?? ""))
           .join("")
           .trim();
-
         if (!removedMatchingH1 && normalizeTitle(text) === normalizeTitle(pageTitle)) {
-          parent.children.splice(index, 1); // remove matching H1
+          parent.children.splice(index, 1);
           removedMatchingH1 = true;
           return;
         }
-
-        // demote any other H1 to H2
         node.depth = 2;
       });
     };
   };
-
   return plugin;
 }
-
-/* =============================================================================
-   remark plugin: [[fanatics ...]] shortcode → clickable brand callout
-   Supports: url, note, title
-   ========================================================================== */
 function remarkFanaticsShortcode(): Plugin {
   const plugin: Plugin = function thisPlugin(): Transformer {
     const re = /\[\[\s*fanatics(?:\s+([^[\]]+?))?\s*\]\]/gi;
-
     return (tree: any) => {
       (visit as any)(tree, "paragraph", (node: any, index?: number, parent?: any) => {
         if (!parent || index == null) return;
-
         if (
           node.children?.length !== 1 ||
           node.children[0].type !== "text" ||
           typeof node.children[0].value !== "string"
-        )
-          return;
+        ) return;
 
         const raw = node.children[0].value as string;
         const m = re.exec(raw);
         re.lastIndex = 0;
         if (!m) return;
 
-        // parse key="value" pairs
         const attrs = m[1] ?? "";
         const kv: Record<string, string> = {};
         attrs.replace(/(\w+)\s*=\s*"([^"]*)"/g, (_: any, k: string, v: string) => {
@@ -125,10 +107,7 @@ function remarkFanaticsShortcode(): Plugin {
           return "";
         });
 
-        // destination: provided url or default tracking link
         let finalUrl = kv.url || AFFILIATES.fanatics.defaultUrl;
-
-        // decorate plain fanatics.com/.ca with UTM (skip tracking domain)
         try {
           const u = new URL(finalUrl, "https://example.com");
           const host = u.host.toLowerCase();
@@ -138,9 +117,7 @@ function remarkFanaticsShortcode(): Plugin {
             });
             finalUrl = u.toString();
           }
-        } catch {
-          /* ignore bad urls */
-        }
+        } catch { }
 
         const note = kv.note || "Officially licensed gear";
         const heading =
@@ -170,56 +147,41 @@ function remarkFanaticsShortcode(): Plugin {
       });
     };
   };
-
   return plugin;
 }
-
-/* =============================================================================
-   rehype plugin: decorate plain <a> links to Fanatics (outside shortcodes)
-   ========================================================================== */
 function rehypeFanaticsLinks(): Plugin {
   const plugin: Plugin = function thisPlugin(): Transformer {
     return (tree: any) => {
       const cfg = AFFILIATES.fanatics;
       if (!cfg.enabled) return;
-
       (visit as any)(tree, "element", (node: any) => {
         if (node.tagName !== "a") return;
         const href = node.properties?.href as string | undefined;
         if (!href) return;
-
         try {
           const url = new URL(href, "https://example.com");
           const host = url.host.toLowerCase();
-
-          // Only decorate fanatics.com/.ca (never the tracking domain)
           if (cfg.decorateHosts.some((h) => host.includes(h))) {
             Object.entries(cfg.params).forEach(([k, v]) => {
               if (!url.searchParams.has(k)) url.searchParams.set(k, v);
             });
             node.properties.href = url.toString();
           }
-
-          // Always add safety attrs
           node.properties.target = node.properties.target || "_blank";
           node.properties.rel = node.properties.rel || "noopener noreferrer";
-        } catch {
-          /* ignore malformed URLs */
-        }
+        } catch { }
       });
     };
   };
-
   return plugin;
 }
 
 /* =============================================================================
-   Metadata (OG/Twitter) — use frontmatter image keys or fallback
+   Metadata (OG/Twitter)
    ========================================================================== */
 function pickFirst(...vals: unknown[]) {
   return vals.find(v => typeof v === "string" && v.trim().length > 0) as string | undefined;
 }
-
 export async function generateMetadata(
   { params }: { params: { slug: string } }
 ): Promise<Metadata> {
@@ -237,12 +199,10 @@ export async function generateMetadata(
     (data?.description as string) ||
     "4th Line Fantasy blog post";
 
-  // Accept multiple possible keys from frontmatter
   const ogSrc =
     pickFirst(data?.thumbnail, data?.image, data?.cover, data?.coverImage) ||
     "/og/default-og.png";
 
-  // Optional article metadata if present
   const authors = Array.isArray(data?.author)
     ? (data?.author as string[])
     : data?.author
@@ -299,10 +259,7 @@ export default async function BlogPostPage(
   }
 
   const { data, content } = loaded;
-
-  if ((data as any)?.draft === true) {
-    notFound();
-  }
+  if ((data as any)?.draft === true) notFound();
 
   const title =
     ((data as any)?.title as string) ||
@@ -315,7 +272,6 @@ export default async function BlogPostPage(
     .use(rehypeFanaticsLinks())
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
-
   const contentHtml = String(processed);
 
   const dateStr = (data as any)?.date
@@ -325,11 +281,10 @@ export default async function BlogPostPage(
       day: "numeric",
     })
     : "";
-
   const tags = ((data as any)?.tags as string[]) || [];
   const categories = ((data as any)?.categories as string[]) || [];
 
-  /* ---------- HERO IMAGE (with real existence check + fallback) ---------- */
+  /* ---------- HERO IMAGE (existence check + remote-safe) ---------- */
   const FALLBACK_HERO = "/images/brands/fanatics.jpeg";
   const fmHero =
     (data as any)?.thumbnail ||
@@ -338,7 +293,6 @@ export default async function BlogPostPage(
     (data as any)?.coverImage ||
     "";
 
-  // FIX: always return string
   const stripQuery = (p: string): string => {
     const i = p.indexOf("?");
     return i === -1 ? p : p.slice(0, i);
@@ -349,13 +303,15 @@ export default async function BlogPostPage(
 
   let heroImage: string = FALLBACK_HERO;
   let isFallbackHero = true;
+  let isRemoteHero = false;
 
   if (typeof fmHero === "string" && fmHero.trim().length > 0) {
     const raw = fmHero.trim();
     if (/^https?:\/\//i.test(raw)) {
-      // Remote URL: use as-is (assumes domain is allowed in next.config)
+      // Remote URL → render unoptimized to avoid next.config domain errors
       heroImage = raw;
       isFallbackHero = false;
+      isRemoteHero = true;
     } else {
       const cleaned = ensureLeadingSlash(stripQuery(raw.replace(/^\/+/, "")));
       if (publicFileExists(cleaned)) {
@@ -408,13 +364,13 @@ export default async function BlogPostPage(
               sizes="(max-width: 1024px) 100vw, 1024px"
               className={isFallbackHero ? "object-contain p-6 bg-white" : "object-cover"}
               quality={isFallbackHero ? 100 : 90}
+              unoptimized={isRemoteHero}
             />
           </div>
         </div>
 
         {/* Article */}
         <article className="mt-6 md:mt-8 rounded-2xl p-6 md:p-8 bg-white/80 backdrop-blur-md border border-white/50 shadow-sm">
-          {/* Title block */}
           <header className="mb-6 md:mb-8">
             <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-[#0F2A44]">
               {title}
@@ -446,36 +402,24 @@ export default async function BlogPostPage(
             )}
           </header>
 
-          {/* Polished reading styles */}
           <div
             className={[
-              // base
               "prose md:prose-lg max-w-[72ch] mx-auto text-[#0F2A44]",
-              // headings
               "prose-headings:font-extrabold prose-headings:text-[#0F2A44] prose-h2:mt-12 prose-h2:mb-3 prose-h3:mt-8 prose-h3:mb-2.5",
-              // paragraphs & lists
               "prose-p:my-4 md:prose-p:my-5 prose-ul:my-5 prose-ol:my-5 prose-li:my-1.5",
-              // links
               "prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:decoration-2 hover:prose-a:underline-offset-4",
-              // emphasis
               "prose-strong:text-[#0F2A44]",
-              // hr & blockquote
               "prose-hr:border-[#5CAFE8]/40 prose-hr:my-10",
               "prose-blockquote:pl-5 prose-blockquote:border-l-4 prose-blockquote:border-[#5CAFE8]/50 prose-blockquote:text-[#0F2A44]/80",
-              // images & figures
               "prose-img:rounded-xl prose-img:shadow-sm prose-img:my-6",
               "prose-figure:my-8 prose-figcaption:text-sm prose-figcaption:text-[#0F2A44]/70",
-              // code
               "prose-pre:rounded-xl prose-pre:p-4 prose-pre:bg-slate-900 prose-pre:text-slate-100",
               "prose-code:px-1.5 prose-code:py-0.5 prose-code:bg-slate-100 prose-code:rounded",
-              // tables
               "prose-table:my-6 prose-th:font-semibold",
             ].join(" ")}
-            // Rendered HTML from remark/rehype
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
+            dangerouslySetInnerHTML={{ __html: String(contentHtml) }}
           />
 
-          {/* Disclosure */}
           <div className="mt-10">
             <AffiliateDisclosure />
           </div>
@@ -484,7 +428,7 @@ export default async function BlogPostPage(
         <div className="mt-8">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0_16px_#FF8A00]"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
             aria-label="Back to blog"
           >
             ← Back to Blog
