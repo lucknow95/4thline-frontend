@@ -96,10 +96,6 @@ function remarkSingleH1(pageTitle: string): Plugin {
 /* =============================================================================
    remark plugin: [[fanatics ...]] shortcode → clickable brand callout
    Supports: url, note, title
-   Usage in markdown:
-     [[fanatics]]
-     [[fanatics note="Officially licensed gear"]]
-     [[fanatics title="Boston Bruins Hoodie" url="https://fanatics.93n6tx.net/..." note="..."]]
    ========================================================================== */
 function remarkFanaticsShortcode(): Plugin {
   const plugin: Plugin = function thisPlugin(): Transformer {
@@ -266,7 +262,6 @@ export async function generateMetadata(
       authors,
       publishedTime,
     },
-    // NOTE: Next will automatically include twitter tags from this block
     twitter: {
       card: "summary_large_image",
       title,
@@ -333,15 +328,45 @@ export default async function BlogPostPage(
 
   const tags = ((data as any)?.tags as string[]) || [];
   const categories = ((data as any)?.categories as string[]) || [];
-  const heroImage =
-    "/" +
-    (((data as any)?.thumbnail as string) ||
-      ((data as any)?.image as string) ||
-      ((data as any)?.cover as string) ||
-      ((data as any)?.coverImage as string) ||
-      "og/default-og.png").replace(/^\/+/, "");
-  const isFallbackHero =
-    !((data as any)?.thumbnail || (data as any)?.image || (data as any)?.cover || (data as any)?.coverImage);
+
+  /* ---------- HERO IMAGE (with real existence check + fallback) ---------- */
+  const FALLBACK_HERO = "/images/brands/fanatics.jpeg";
+  const fmHero =
+    (data as any)?.thumbnail ||
+    (data as any)?.image ||
+    (data as any)?.cover ||
+    (data as any)?.coverImage ||
+    "";
+
+  // FIX: always return string
+  const stripQuery = (p: string): string => {
+    const i = p.indexOf("?");
+    return i === -1 ? p : p.slice(0, i);
+  };
+  const ensureLeadingSlash = (p: string) => (p.startsWith("/") ? p : `/${p}`);
+  const publicFileExists = (p: string) =>
+    fs.existsSync(path.join(process.cwd(), "public", p.replace(/^\//, "")));
+
+  let heroImage: string = FALLBACK_HERO;
+  let isFallbackHero = true;
+
+  if (typeof fmHero === "string" && fmHero.trim().length > 0) {
+    const raw = fmHero.trim();
+    if (/^https?:\/\//i.test(raw)) {
+      // Remote URL: use as-is (assumes domain is allowed in next.config)
+      heroImage = raw;
+      isFallbackHero = false;
+    } else {
+      const cleaned = ensureLeadingSlash(stripQuery(raw.replace(/^\/+/, "")));
+      if (publicFileExists(cleaned)) {
+        heroImage = cleaned;
+        isFallbackHero = false;
+      } else {
+        heroImage = FALLBACK_HERO;
+        isFallbackHero = true;
+      }
+    }
+  }
 
   return (
     <main className="relative min-h-screen">
