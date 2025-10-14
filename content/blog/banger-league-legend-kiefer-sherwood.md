@@ -5,7 +5,7 @@ excerpt: "A relentless wrecking ball who delivers nearly six hits per game — a
 tags: ["Banger League Legends", "Fantasy Hockey", "Hits", "Vancouver Canucks"]
 categories: ["Player Profiles", "Banger League Legends"]
 author: "4th Line Fantasy"
-thumbnail: "/blog/legends/sherwood.jpg"
+thumbnail: thumbnail: "/blog/legends/sherwood.jpg?v=2"
 player:
   name: "Kiefer Sherwood"
   team: "Vancouver Canucks"

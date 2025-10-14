@@ -52,8 +52,10 @@ function escapeHtml(s: string) {
 }
 
 function loadPost(slug: string) {
-  const postPath = path.join(BLOG_DIR, `${slug}.md`);
-  if (!fs.existsSync(postPath)) return null;
+  const md = path.join(BLOG_DIR, `${slug}.md`);
+  const mdx = path.join(BLOG_DIR, `${slug}.mdx`);
+  const postPath = fs.existsSync(md) ? md : (fs.existsSync(mdx) ? mdx : null);
+  if (!postPath) return null;
   const file = fs.readFileSync(postPath, "utf8");
   return matter(file);
 }
@@ -216,38 +218,60 @@ function rehypeFanaticsLinks(): Plugin {
 }
 
 /* =============================================================================
-   Metadata (OG/Twitter) — coverImage or /images/brands/fanatics.jpeg
+   Metadata (OG/Twitter) — use frontmatter image keys or fallback
    ========================================================================== */
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
+function pickFirst(...vals: unknown[]) {
+  return vals.find(v => typeof v === "string" && v.trim().length > 0) as string | undefined;
+}
+
+export async function generateMetadata(
+  { params }: { params: { slug: string } }
+): Promise<Metadata> {
+  const { slug } = params;
   const loaded = loadPost(slug);
   if (!loaded) return { title: "Post not found" };
 
-  const { data } = loaded;
+  const { data } = loaded as { data: Record<string, unknown> };
+
   const title =
     (data?.title as string) ||
     slug.replace(/-/g, " ").replace(/\b\w/g, (m: string) => m.toUpperCase());
-  const description = (data?.excerpt as string) || "4th Line Fantasy blog post";
+  const description =
+    (data?.excerpt as string) ||
+    (data?.description as string) ||
+    "4th Line Fantasy blog post";
 
-  const hero = `/${(data?.coverImage as string) || "images/brands/fanatics.jpeg"}`;
+  // Accept multiple possible keys from frontmatter
+  const ogSrc =
+    pickFirst(data?.thumbnail, data?.image, data?.cover, data?.coverImage) ||
+    "/og/default-og.png";
+
+  // Optional article metadata if present
+  const authors = Array.isArray(data?.author)
+    ? (data?.author as string[])
+    : data?.author
+      ? [String(data?.author)]
+      : undefined;
+  const publishedTime = data?.date ? new Date(String(data.date)).toISOString() : undefined;
 
   return {
     title,
     description,
     openGraph: {
+      type: "article",
       title,
       description,
-      images: [{ url: hero, width: 1200, height: 630 }],
+      url: `/blog/${slug}`,
+      images: [{ url: ogSrc, width: 1200, height: 630, alt: title }],
+      authors,
+      publishedTime,
     },
+    // NOTE: Next will automatically include twitter tags from this block
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [hero],
+      images: [ogSrc],
     },
   };
 }
@@ -255,12 +279,10 @@ export async function generateMetadata({
 /* =============================================================================
    Page
    ========================================================================== */
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function BlogPostPage(
+  { params }: { params: { slug: string } }
+) {
+  const { slug } = params;
 
   if (!slug) {
     return (
@@ -283,12 +305,12 @@ export default async function BlogPostPage({
 
   const { data, content } = loaded;
 
-  if (data?.draft === true) {
+  if ((data as any)?.draft === true) {
     notFound();
   }
 
   const title =
-    (data?.title as string) ||
+    ((data as any)?.title as string) ||
     slug.replace(/-/g, " ").replace(/\b\w/g, (m: string) => m.toUpperCase());
 
   const processed = await remark()
@@ -301,18 +323,25 @@ export default async function BlogPostPage({
 
   const contentHtml = String(processed);
 
-  const dateStr = data?.date
-    ? new Date(data.date as string).toLocaleDateString(undefined, {
+  const dateStr = (data as any)?.date
+    ? new Date((data as any).date as string).toLocaleDateString(undefined, {
       year: "numeric",
       month: "long",
       day: "numeric",
     })
     : "";
 
-  const tags = (data?.tags as string[]) || [];
-  const categories = (data?.categories as string[]) || [];
-  const heroImage = `/${(data?.coverImage as string) || "images/brands/fanatics.jpeg"}`;
-  const isFallbackHero = !data?.coverImage;
+  const tags = ((data as any)?.tags as string[]) || [];
+  const categories = ((data as any)?.categories as string[]) || [];
+  const heroImage =
+    "/" +
+    (((data as any)?.thumbnail as string) ||
+      ((data as any)?.image as string) ||
+      ((data as any)?.cover as string) ||
+      ((data as any)?.coverImage as string) ||
+      "og/default-og.png").replace(/^\/+/, "");
+  const isFallbackHero =
+    !((data as any)?.thumbnail || (data as any)?.image || (data as any)?.cover || (data as any)?.coverImage);
 
   return (
     <main className="relative min-h-screen">
@@ -348,7 +377,7 @@ export default async function BlogPostPage({
           >
             <Image
               src={heroImage}
-              alt={typeof data?.title === "string" ? data.title : "Blog hero image"}
+              alt={typeof (data as any)?.title === "string" ? (data as any).title : "Blog hero image"}
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 1024px"

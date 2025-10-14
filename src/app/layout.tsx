@@ -1,6 +1,8 @@
+// src/app/layout.tsx
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import NavLink from "@/components/NavLink";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 
@@ -31,7 +33,7 @@ function resolveMetadataBase(): URL {
   return new URL("https://4thlinefantasy.com");
 }
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: resolveMetadataBase(),
   title: "4th Line Fantasy",
   description: "Fantasy hockey tools",
@@ -43,7 +45,7 @@ export const metadata = {
   openGraph: {
     title: "4th Line Fantasy",
     description: "Fantasy hockey tools & insights to give you the edge.",
-    images: ["/brand/og-image.png"],
+    images: [{ url: "/brand/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
