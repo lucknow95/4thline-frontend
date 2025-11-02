@@ -76,9 +76,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <li className="h-5 w-px bg-[var(--header-border)]" aria-hidden="true" />
               <li><NavLink href="/rankings">Rankings</NavLink></li>
               <li><NavLink href="/players">Players</NavLink></li>
-              <li><NavLink href="/optimizer">Optimizer</NavLink></li>
-              <li><NavLink href="/crunch-palace">Crunch Palace</NavLink></li>
-              <li><NavLink href="/blog" exact={false}>Blog</NavLink></li>
+              <li><NavLink href="/optimizer">Optimizer</NavLink></li><li><NavLink href="/blog" exact={false}>Blog</NavLink></li>
               <li><NavLink href="/newsletter">Newsletter</NavLink></li>
               <li><NavLink href="/merch">Merch</NavLink></li>
             </ul>
@@ -94,3 +92,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
