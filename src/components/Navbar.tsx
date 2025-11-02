@@ -14,7 +14,6 @@ function NavLink({ item }: { item: NavItem }) {
       href={item.href}
       aria-current={isActive ? 'page' : undefined}
       className={[
-        // Use your global .nav-link skin; active gets the amber glow style
         'nav-link',
         isActive ? 'nav-link-active' : '',
       ].join(' ')}
@@ -30,9 +29,9 @@ export default function Navbar() {
     { name: 'Rankings', href: '/rankings' },
     { name: 'Players', href: '/players' },
     { name: 'Optimizer', href: '/optimizer' },
-    { name: 'Crunch Palace', href: '/crunch-palace' },
+    // { name: 'Crunch Palace', href: '/crunch-palace' }, // 🔒 Hidden for now
     { name: 'Blog', href: '/blog' },
-    { name: 'Merch', href: '/merch' },          // ← updated label + route
+    { name: 'Merch', href: '/merch' },
     { name: 'Newsletter', href: '/newsletter' },
     { name: 'Login', href: '/login' },
     { name: 'Settings', href: '/settings' },
