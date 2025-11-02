@@ -28,6 +28,7 @@ const AFFILIATES = {
       utm_medium: "blog",
       utm_campaign: "affiliate",
     } as Record<string, string>,
+    // tiny logo used inside the callout box
     logoSrc: "/images/brands/fanatics.jpeg",
   },
 };
@@ -278,12 +279,41 @@ export default async function BlogPostPage(
 ) {
   const { slug } = params;
 
+  if (!slug) {
+    return (
+      <main className="flex justify-center relative min-h-screen">
+        <div
+          className="absolute inset-0 -z-10"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 50% 40%, #E6F4FF 0%, #BFE4FF 45%, #5CAFE8 85%)",
+          }}
+        />
+        <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+          <h1 className="text-3xl font-bold text-red-600 mb-4">Invalid Blog URL</h1>
+          <p className="text-gray-600">No blog post selected.</p>
+        </div>
+      </main>
+    );
+  }
+
   const loaded = loadPost(slug);
   if (!loaded) {
     return (
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-red-600 mb-4">404 - Post Not Found</h1>
-        <p className="text-gray-600">The requested post doesn’t exist.</p>
+      <main className="flex justify-center relative min-h-screen">
+        <div
+          className="absolute inset-0 -z-10"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 50% 40%, #E6F4FF 0%, #BFE4FF 45%, #5CAFE8 85%)",
+          }}
+        />
+        <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+          <h1 className="text-3xl font-bold text-red-600 mb-4">404 - Post Not Found</h1>
+          <p className="text-gray-600">The requested post doesn’t exist.</p>
+        </div>
       </main>
     );
   }
@@ -360,7 +390,7 @@ export default async function BlogPostPage(
   }
 
   return (
-    <main className="relative min-h-screen">
+    <main className="relative min-h-screen flex justify-center">
       {/* Ice background */}
       <div
         className="absolute inset-0 -z-10"
@@ -371,119 +401,118 @@ export default async function BlogPostPage(
         }}
       />
 
-      {/* 3-column grid to perfectly center all content */}
-      <div className="grid grid-cols-[1fr_minmax(0,72ch)_1fr] lg:grid-cols-[1fr_minmax(0,80rem)_1fr]">
-        {/* Middle column holds all content; side tracks become equal blue margins */}
-        <div className="col-[2] px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-          <div className="mb-6">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
-              aria-label="Back to blog"
-            >
-              ← Back to Blog
-            </Link>
-          </div>
+      {/* Centered wrapper that controls the content width */}
+      <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+        <div className="mb-6">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
+            aria-label="Back to blog"
+          >
+            ← Back to Blog
+          </Link>
+        </div>
 
-          {/* Hero */}
-          <div className="rounded-2xl overflow-hidden bg-white/70 backdrop-blur-md border border-white/50 shadow-sm">
-            <div
-              className={
-                isFallbackHero
-                  ? "relative w-full h-56 md:h-72 flex items-center justify-center"
-                  : "relative w-full aspect-[16/9]"
-              }
-            >
-              <Image
-                src={heroImage}
-                alt={typeof (data as any)?.title === "string" ? (data as any).title : "Blog hero image"}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 1024px"
-                className={isFallbackHero ? "object-contain p-6 bg-white" : "object-cover"}
-                quality={isFallbackHero ? 100 : 90}
-                unoptimized={isRemoteHero}
-              />
-            </div>
-          </div>
-
-          {/* Article */}
-          <article className="mt-6 md:mt-8 rounded-2xl p-6 md:p-8 bg-white/80 backdrop-blur-md border border-white/50 shadow-sm">
-            {/* Title block */}
-            <header className="mb-6 md:mb-8">
-              <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-[#0F2A44]">
-                {title}
-              </h1>
-              {dateStr && (
-                <p className="mt-2 text-sm md:text-base text-[#0F2A44]/70">{dateStr}</p>
-              )}
-              {(tags.length > 0 || categories.length > 0) && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {categories.map((c) => (
-                    <span
-                      key={`cat-${c}`}
-                      className="px-2 py-1 text-xs font-semibold rounded-full bg-white/80 border border-white/50 text-[#0F2A44]"
-                      title="Category"
-                    >
-                      {c}
-                    </span>
-                  ))}
-                  {tags.map((t) => (
-                    <span
-                      key={`tag-${t}`}
-                      className="px-2 py-1 text-xs font-medium rounded-full bg-white/80 border border-white/50 text-[#0F2A44]"
-                      title="Tag"
-                    >
-                      #{t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </header>
-
-            {/* Polished reading styles */}
-            <div
-              className={[
-                // base
-                "prose md:prose-lg max-w-[72ch] mx-auto text-[#0F2A44]",
-                // headings
-                "prose-headings:font-extrabold prose-headings:text-[#0F2A44] prose-h2:mt-12 prose-h2:mb-3 prose-h3:mt-8 prose-h3:mb-2.5",
-                // paragraphs & lists
-                "prose-p:my-4 md:prose-p:my-5 prose-ul:my-5 prose-ol:my-5 prose-li:my-1.5",
-                // links
-                "prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:decoration-2 hover:prose-a:underline-offset-4",
-                // emphasis
-                "prose-strong:text-[#0F2A44]",
-                // hr & blockquote
-                "prose-hr:border-[#5CAFE8]/40 prose-hr:my-10",
-                "prose-blockquote:pl-5 prose-blockquote:border-l-4 prose-blockquote:border-[#5CAFE8]/50 prose-blockquote:text-[#0F2A44]/80",
-                // images & figures
-                "prose-img:rounded-xl prose-img:shadow-sm prose-img:my-6",
-                "prose-figure:my-8 prose-figcaption:text-sm prose-figcaption:text-[#0F2A44]/70",
-                // code
-                "prose-pre:rounded-xl prose-pre:p-4 prose-pre:bg-slate-900 prose-pre:text-slate-100",
-                "prose-code:px-1.5 prose-code:py-0.5 prose-code:bg-slate-100 prose-code:rounded",
-                // tables
-                "prose-table:my-6 prose-th:font-semibold",
-              ].join(" ")}
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
+        {/* Hero */}
+        <div className="rounded-2xl overflow-hidden bg-white/70 backdrop-blur-md border border-white/50 shadow-sm">
+          <div
+            className={
+              isFallbackHero
+                ? "relative w-full h-56 md:h-72 flex items-center justify-center"
+                : "relative w-full aspect-[16/9]"
+            }
+          >
+            <Image
+              src={heroImage}
+              alt={typeof (data as any)?.title === "string" ? (data as any).title : "Blog hero image"}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className={isFallbackHero ? "object-contain p-6 bg-white" : "object-cover"}
+              quality={isFallbackHero ? 100 : 90}
+              unoptimized={isRemoteHero}
             />
-
-            {/* Disclosure */}
-            <div className="mt-10">
-              <AffiliateDisclosure />
-            </div>
-          </article>
-
-          <div className="mt-8">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
-              aria-label="Back to blog"
-            >
-              ← Back to Blog
-            </Link>
           </div>
+        </div>
+
+        {/* Article */}
+        <article className="mt-6 md:mt-8 rounded-2xl px-6 md:px-10 py-8 md:py-10 bg-white/80 backdrop-blur-md border border-white/50 shadow-sm">
+
+          {/* Title block */}
+          <header className="mb-6 md:mb-8">
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-[#0F2A44]">
+              {title}
+            </h1>
+            {dateStr && (
+              <p className="mt-2 text-sm md:text-base text-[#0F2A44]/70">{dateStr}</p>
+            )}
+            {(tags.length > 0 || categories.length > 0) && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {categories.map((c) => (
+                  <span
+                    key={`cat-${c}`}
+                    className="px-2 py-1 text-xs font-semibold rounded-full bg-white/80 border border-white/50 text-[#0F2A44]"
+                    title="Category"
+                  >
+                    {c}
+                  </span>
+                ))}
+                {tags.map((t) => (
+                  <span
+                    key={`tag-${t}`}
+                    className="px-2 py-1 text-xs font-medium rounded-full bg-white/80 border border-white/50 text-[#0F2A44]"
+                    title="Tag"
+                  >
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          {/* Polished reading styles */}
+          <div
+            className={[
+              // base
+              "prose md:prose-lg max-w-[72ch] mx-auto text-[#0F2A44]",
+              // headings
+              "prose-headings:font-extrabold prose-headings:text-[#0F2A44] prose-h2:mt-12 prose-h2:mb-3 prose-h3:mt-8 prose-h3:mb-2.5",
+              // paragraphs & lists
+              "prose-p:my-4 md:prose-p:my-5 prose-ul:my-5 prose-ol:my-5 prose-li:my-1.5",
+              // links
+              "prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:decoration-2 hover:prose-a:underline-offset-4",
+              // emphasis
+              "prose-strong:text-[#0F2A44]",
+              // hr & blockquote
+              "prose-hr:border-[#5CAFE8]/40 prose-hr:my-10",
+              "prose-blockquote:pl-5 prose-blockquote:border-l-4 prose-blockquote:border-[#5CAFE8]/50 prose-blockquote:text-[#0F2A44]/80",
+              // images & figures
+              "prose-img:rounded-xl prose-img:shadow-sm prose-img:my-6",
+              "prose-figure:my-8 prose-figcaption:text-sm prose-figcaption:text-[#0F2A44]/70",
+              // code
+              "prose-pre:rounded-xl prose-pre:p-4 prose-pre:bg-slate-900 prose-pre:text-slate-100",
+              "prose-code:px-1.5 prose-code:py-0.5 prose-code:bg-slate-100 prose-code:rounded",
+              // tables
+              "prose-table:my-6 prose-th:font-semibold",
+            ].join(" ")}
+            // Rendered HTML from remark/rehype
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
+          />
+
+          {/* Disclosure */}
+          <div className="mt-10">
+            <AffiliateDisclosure />
+          </div>
+        </article>
+
+        <div className="mt-8">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F2A44] rounded-lg px-2 py-1 transition hover:shadow-[0_0_0_2px_#FF8A00,0_0,16px_#FF8A00]"
+            aria-label="Back to blog"
+          >
+            ← Back to Blog
+          </Link>
         </div>
       </div>
     </main>
