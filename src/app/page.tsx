@@ -131,17 +131,12 @@ export default async function HomePage() {
               href: "/blog",
             },
             {
-              title: "Crunch Palace (soon)",
-              desc: "Arena-by-arena hits tracking to spot ‘friendly’ barns for peripherals.",
-              href: "/crunch-palace",
-            },
-            {
               title: "Player Pages & Logs (soon)",
               desc: "Game logs with home/away splits and upcoming schedule views.",
               href: "/players",
             },
             {
-              title: "Schedule Optimizer (soon)",
+              title: "Schedule Optimizer",
               desc: "Plan medium-term moves by total games and off-nights over the next month.",
               href: "/optimizer",
             },
