@@ -104,7 +104,7 @@ RW **Mathieu Olivier** — specialist averaging **3.5 HIT/GP** with PIM potentia
 
 ## Closing Notes (Quick Hits You Can Action)
 
-- **Jumpstart**: Mine Monday, or Mon–Tue / Mon–Wed to front-load games.  
+- **Jumpstart**: Find Monday, or Mon–Tue / Mon–Wed to front-load games.  
 - **Prefer Monday > Sunday** when splitting hairs (keeps an extra drop/add window at week’s end).  
 - **Category floors**: Banger D with **BLK/HIT** (paired with off-nights) win ugly weeks.  
 - **Always re-check** roster % and line usage before your waiver cycles — roles move fast.
