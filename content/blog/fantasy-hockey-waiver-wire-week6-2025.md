@@ -61,14 +61,14 @@ Use these to **plug a gap** if you can’t land a 4-gamer with Mon/Wed leverage.
 
 # Player Picks
 
-### New York Rangers (4 GP – Mon/Wed/Sat/Sun)
+## New York Rangers (4 GP – Mon/Wed/Sat/Sun)
 LW/RW **Will Cuylle** — physical winger driving strong category floors: **2.4 SOG, 3.5 HIT, 1.0 BLK per game**. Mid-six usage makes him a safe week-long plug. *(Yahoo 39%)*  
 LW/RW **Alexis Lafrenière** — deeper-league swing; **2.2 SOG, 1.4 HIT per game** with streaky scoring upside if lines stabilize. *(Yahoo 19%)*  
 D **Braden Schneider** — steady banger defenseman at **1.2 SOG, 2.4 HIT, 1.3 BLK per game**; pure peripheral glue. *(Yahoo 7%)*  
 
 ---
 
-### New York Islanders (4 GP – Mon/Thu/Fri/Sun)
+## New York Islanders (4 GP – Mon/Thu/Fri/Sun)
 LW/RW **Emil Heinemann** — scoring efficiently in limited minutes while adding **2.29 SOG and 3.93 HIT per game**; great off-night depth. *(Yahoo N/A)*  
 LW **Anders Lee** — veteran finisher with **3 SOG and 1 HIT per game**; consistent presence at the net-front. *(Yahoo 17%)*  
 RW **Kyle Palmieri** — volume shooter (~3 SOG/GP) and goal threat in top-six usage. *(Yahoo 16%)*  
@@ -76,7 +76,7 @@ D **Alexander Romanov** — steady **2.22 HIT and 2.44 BLK per game** since retu
 
 ---
 
-### Vegas Golden Knights (4 GP – Mon/Thu/Sat/Sun)
+## Vegas Golden Knights (4 GP – Mon/Thu/Sat/Sun)
 D **Noah Hanifin** — logging 23 minutes nightly with heavy shot volume; balanced four-game stream. *(Yahoo 47%)*  
 LW **Ivan Barbashev** — producing over a point per game with **~1.5 SOG and 1.5 HIT per game**; multi-cat value. *(Yahoo 29%)*  
 D **Brayden McNabb** — elite block option: **3.5 BLK and 1.5 HIT per game**. *(Yahoo 18%)*  
@@ -84,13 +84,13 @@ D **Jeremy Lozon** — gritty depth add supplying **1.5 PIM, 3.7 HIT, 1.7 BLK pe
 
 ---
 
-### Edmonton Oilers (4 GP – Mon/Wed/Thu/Sat)
+## Edmonton Oilers (4 GP – Mon/Wed/Thu/Sat)
 D **Mattias Ekholm** — steady cross-category value: **1.73 SOG, 3.33 HIT, 2.27 BLK per game**. *(Yahoo 45%)*  
 > *Note:* Zach Hyman’s return will shuffle forward lines — confirm usage before adding fringe wingers.  
 
 ---
 
-### Columbus Blue Jackets (4 GP – Mon/Tue/Thu/Sat)
+## Columbus Blue Jackets (4 GP – Mon/Tue/Thu/Sat)
 LW **Dmitri Voronkov** — multi-cat riser with **~2 SOG, 2 HIT per game**, PIM upside, and scoring touch. *(Yahoo 32%)*  
 C **Adam Fantilli** — steady **2 SOG/GP** with hit and point upside as deployment grows. *(Yahoo 35%)*  
 C/LW **Boone Jenner** — reliable banger at **~2 HIT and ~2 SOG per game**, plus the occasional block. *(Yahoo 25%)*  
@@ -98,24 +98,7 @@ RW **Mathieu Olivier** — specialist averaging **3.5 HIT/GP** with PIM potentia
 
 ---
 
-# Top 3 Streams for Next Week (teaser → Optimizer)
-
-Get a head start for Week 7. **Use our Optimizer** to preview the **top three streaming teams** for next week and see how they fit your roster (off-night density, man-games, positional needs). For illustration, check out **Rangers, Red Wings, Blackhawks**, then customize to your own league.
-
-![Optimizer preview — next week stream fit](/images/optimizer/week6-teaser.png)  
-*Swap the image path above to your real screenshot before publishing.*
-
----
-
-## How We Count Off-Nights (and Exceptions)
-
-We treat **Mon/Wed/Fri/Sun** as off-nights. If the NHL throws a curveball (e.g., an unusually heavy Wednesday), we’ll flag it in the notes. Week 6 follows the standard pattern, keeping **Mon/Wed** entries especially valuable.
-
----
-
-## Goalie “Risers” Monitor
-
-We’re skipping goalies for primary streamers. If a low-rostered goalie clearly inherits a #1 workload due to injury or performance, we’ll flag it here. *(If none emerge, omit this box.)*
+**Get a head start for Week 7. Use our Optimizer to preview the top streaming teams and see how they fit your roster (off-night density, man-games, positional needs).**
 
 ---
 
