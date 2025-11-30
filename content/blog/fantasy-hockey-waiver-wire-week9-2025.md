@@ -17,7 +17,6 @@ Week 9 is a **classic off-night leverage week** if you build it properly:
 
 We’re looking to **stack four-game teams** that park most of their schedule on **Mon/Wed/Fri**, then sprinkle in smart Tue/Thu/Sat exposure where your roster has holes.
 
-
 ---
 
 ## Quick Jumpstart (early-week attack)
@@ -158,7 +157,7 @@ A simple way to attack this slate:
 
 ## Player Picks
 
-### Anaheim Ducks (4 GP – Mon/Wed/Fri/Sun)
+## Anaheim Ducks (4 GP – Mon/Wed/Fri/Sun)
 
 LW **Chris Kreider** — Brings **scoring and shot upside**, with the ability to swing matchups when he’s hot. Ideal if you need goals and a strong shot floor across three off-nights.  
 
@@ -168,7 +167,7 @@ D **Radko Gudas** — Delivers a **nice floor of shots** with **heavy hits, stro
 
 ---
 
-### San Jose Sharks (4 GP – Mon/Wed/Fri/Sun)
+## San Jose Sharks (4 GP – Mon/Wed/Fri/Sun)
 
 D **Dmitry Orlov** — Provides a balanced **shots / hits / blocks floor** with steady minutes. A solid all-around blue-line streamer for multi-cat formats.  
 
@@ -180,7 +179,7 @@ D **Mario Ferraro** — Known for a strong **hit floor and consistent blocks**. 
 
 ---
 
-### New Jersey Devils (4 GP – Mon/Wed/Fri/Sat)
+## New Jersey Devils (4 GP – Mon/Wed/Fri/Sat)
 
 C/RW **Dawson Mercer** — Brings **scoring upside with good shot volume**, making him a strong mid-tier streaming center/wing hybrid.  
 
@@ -190,7 +189,7 @@ D **Brenden Dillon** — Offers **heavy hits and solid blocks** with **PIM poten
 
 ---
 
-### Utah Hockey Club (4 GP – Mon/Wed/Fri/Sat)
+## Utah Hockey Club (4 GP – Mon/Wed/Fri/Sat)
 
 D **Sean Durzi** — Back in the lineup and offering **solid shot volume with blocks**, plus potential PP involvement. Great if you need a blend of offense and peripherals from D.  
 
@@ -200,7 +199,7 @@ C/LW **Jamie McBain** — Provides **high hit volume with PIM upside**. Ideal fo
 
 ---
 
-### Winnipeg Jets (4 GP – Mon/Wed/Fri/Sat)
+## Winnipeg Jets (4 GP – Mon/Wed/Fri/Sat)
 
 C/LW/RW **Cole Perfetti** — Offers **good shot volume and point potential**. A flexible multi-position add who fits almost any build if he’s available.  
 
@@ -210,7 +209,7 @@ C **Adam Lowry** — Provides **steady shots and strong hit volume**, plus **PIM
 
 ---
 
-### Dallas Stars (4 GP – Tue/Wed/Fri/Sun)
+## Dallas Stars (4 GP – Tue/Wed/Fri/Sun)
 
 C/RW **Tyler Seguin** — Offers **scoring upside with a strong schedule**, touching both heavy and off-nights. Solid streaming option if you need goals and shots with decent deployment.  
 
@@ -220,7 +219,7 @@ C/LW **Jamie Benn** — Provides a **decent shot floor**, **hitting upside**, an
 
 ---
 
-### Washington Capitals (4 GP – Tue/Wed/Fri/Sun)
+## Washington Capitals (4 GP – Tue/Wed/Fri/Sun)
 
 C/LW **Connor McMichael** — Carries **good shot volume and point-scoring upside**. A nice middle-six scoring add who benefits from Washington’s hybrid schedule.  
 
@@ -234,7 +233,7 @@ D **Matt Roy** — Another steady **multi-cat defenseman**, providing useful **h
 
 ---
 
-### Buffalo Sabres (3 GP – Mon/Wed/Fri)
+## Buffalo Sabres (3 GP – Mon/Wed/Fri)
 
 D **Mattias Samuelsson** — Provides a **decent shot and hit floor** with **high block upside**. Great if you’re trying to maximize off-night peripherals.  
 
@@ -244,7 +243,7 @@ C **Josh Norris** — Should be returning soon and could be an **elite add if he
 
 ---
 
-### Philadelphia Flyers (3 GP – Mon/Wed/Sun)
+## Philadelphia Flyers (3 GP – Mon/Wed/Sun)
 
 LW/RW **Owen Tippett** — Brings **good shot and hit volume with scoring upside**. Ideal off-night winger if you’re chasing goals and banger stats simultaneously.  
 
@@ -256,7 +255,7 @@ D **Nick Seeler** — Provides a reliable **across-the-board floor in shots, hit
 
 ---
 
-### Pittsburgh Penguins (3 GP – Mon/Thu/Sun)
+## Pittsburgh Penguins (3 GP – Mon/Thu/Sun)
 
 D **Kris Letang** — Delivers **shots, hits, and blocks at acceptable levels**, with real **scoring upside** when the Penguins’ offense is rolling. Great in any format if he’s available.  
 
