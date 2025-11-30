@@ -45,11 +45,6 @@ export default function Footer() {
                                 Merch
                             </Link>
                         </li>
-                        <li>
-                            <Link href="/crunch-palace" className="hover:text-orange-400">
-                                Crunch Palace
-                            </Link>
-                        </li>
                     </ul>
                 </div>
 
