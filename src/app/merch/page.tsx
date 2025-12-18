@@ -1,68 +1,64 @@
-// src/app/merch/page.tsx
 "use client";
 
-import AffiliateDisclosure from "@/components/AffiliateDisclosure";
-import SubscribeForm from "@/components/SubscribeForm";
-import FanaticsCallout from "@/components/affiliate/FanaticsCallout";
+import dynamic from "next/dynamic";
+
+const MerchBuyButton = dynamic(() => import("./MerchBuyButton.client"), {
+  ssr: false,
+});
+
+const SHOPIFY_BUY_BUTTON_EMBED = `
+<div id='collection-component-1766038785707'></div>
+<script type="text/javascript">
+/*<![CDATA[*/
+(function () {
+  var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+  if (window.ShopifyBuy) {
+    if (window.ShopifyBuy.UI) {
+      ShopifyBuyInit();
+    } else {
+      loadScript();
+    }
+  } else {
+    loadScript();
+  }
+  function loadScript() {
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = scriptURL;
+    (document.head || document.body).appendChild(script);
+    script.onload = ShopifyBuyInit;
+  }
+  function ShopifyBuyInit() {
+    var client = ShopifyBuy.buildClient({
+      domain: 'ta1hvq-tg.myshopify.com',
+      storefrontAccessToken: '70d8fb236ce34c88adc6be10131bc7f',
+    });
+    ShopifyBuy.UI.onReady(client).then(function (ui) {
+      ui.createComponent('collection', {
+        id: '507484012833',
+        node: document.getElementById('collection-component-1766038785707'),
+        moneyFormat: '%24%7B%7Bamount%7D%7D',
+        options: {}
+      });
+    });
+  }
+})();
+/*]]>*/
+</script>
+`;
 
 export default function MerchPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-[var(--background)] px-4 text-center">
-      <div className="w-full max-w-2xl mx-auto">
-        {/* Use a single vertical stack to control spacing uniformly */}
-        <div className="flex flex-col gap-10">
-          <header>
-            <h1 className="text-4xl font-bold mb-3 text-[rgb(var(--brand-dark))]">
-              🛍️ 4TH Line Fantasy merch coming soon.
-            </h1>
-            <p className="text-lg" style={{ color: "rgba(var(--brand-dark), 0.85)" }}>
-              Has the site helped you in your fantasy matchups? I’d love a coffee to help keep
-              optimizing your lineup and building more tools for you.
-            </p>
-          </header>
+    <main className="mx-auto max-w-5xl px-4 py-10">
+      <h1 className="text-3xl font-bold">4th Line Merch</h1>
+      <p className="mt-2 text-slate-300">
+        Live products from our Shopify store. Ships via Gelato.
+      </p>
 
-          {/* Primary CTA: Buy Me a Coffee */}
-          <div>
-            <a
-              href="https://buymeacoffee.com/samirwin"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                not-prose inline-flex items-center justify-center w-56 h-10 px-5 rounded-md font-semibold
-                bg-[rgb(var(--brand-dark))] shadow-md transition-colors duration-200
-                focus:outline-none focus:ring-2 focus:ring-amber-400
-                !text-white visited:!text-white hover:!text-amber-400 hover:visited:!text-amber-400
-              "
-            >
-              ☕ Buy me a coffee
-            </a>
-          </div>
-
-          {/* Secondary CTA: merch drop notify (uses unified /api/subscribe) */}
-          <section className="space-y-3 rounded-xl border p-4">
-            <p className="text-base" style={{ color: "rgba(var(--brand-dark), 0.75)" }}>
-              Want first access when merch drops? Enter your email and I’ll let you know.
-            </p>
-
-            <div className="flex flex-col items-center">
-              <SubscribeForm list="merch" />
-            </div>
-
-            <p className="text-xs text-neutral-500">
-              By subscribing you consent to receive merch updates from 4th Line Fantasy. You can
-              unsubscribe at any time.
-            </p>
-          </section>
-
-          {/* Fanatics affiliate callout (tinted backdrop + hover glow) */}
-          <FanaticsCallout />
-
-          {/* Affiliate Disclosure */}
-          <footer>
-            <AffiliateDisclosure />
-          </footer>
-        </div>
+      <div className="mt-8 rounded-xl border border-slate-800 bg-slate-950 p-4">
+        <MerchBuyButton embedHtml={SHOPIFY_BUY_BUTTON_EMBED} />
       </div>
     </main>
   );
 }
+
