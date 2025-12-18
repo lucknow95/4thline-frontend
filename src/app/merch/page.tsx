@@ -9,7 +9,7 @@ const MerchBuyButton = dynamic<MerchBuyButtonProps>(
 );
 
 const SHOPIFY_BUY_BUTTON_EMBED = `
-<div id="collection-component-1766038785707"></div>
+<div id='collection-component-17660470797127'></div>
 <script type="text/javascript">
 /*<![CDATA[*/
 (function () {
@@ -27,7 +27,7 @@ const SHOPIFY_BUY_BUTTON_EMBED = `
     var script = document.createElement('script');
     script.async = true;
     script.src = scriptURL;
-    (document.head || document.body).appendChild(script);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(script);
     script.onload = ShopifyBuyInit;
   }
   function ShopifyBuyInit() {
@@ -38,7 +38,7 @@ const SHOPIFY_BUY_BUTTON_EMBED = `
     ShopifyBuy.UI.onReady(client).then(function (ui) {
       ui.createComponent('collection', {
         id: '507484012833',
-        node: document.getElementById('collection-component-1766038785707'),
+        node: document.getElementById('collection-component-17660470797127'),
         moneyFormat: '%24%7B%7Bamount%7D%7D',
         options: {}
       });
@@ -57,7 +57,7 @@ export default function MerchPage() {
         Live products from our Shopify store. Ships via Gelato.
       </p>
 
-      <div className="mt-8 rounded-xl border border-slate-800 bg-slate-950 p-4">
+      <div className="mt-8 min-h-[220px] rounded-xl border border-slate-800 bg-slate-950 p-6">
         <MerchBuyButton embedHtml={SHOPIFY_BUY_BUTTON_EMBED} />
       </div>
     </main>
