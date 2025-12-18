@@ -1,0 +1,290 @@
+{
+    "ANA": {
+        "team": "Anaheim Ducks",
+        "primary": "#FlyTogether",
+        "alternates": [
+            "#NHLDucks",
+            "#LetsGoDucks"
+        ],
+        "emoji": "🦆"
+    },
+    "UTA": {
+        "team": "Utah Mammoth",
+        "primary": "#TusksUp",
+        "alternates": [
+            "#UtahHockey",
+            "#GoMammoth"
+        ],
+        "emoji": "🐘"
+    },
+    "BOS": {
+        "team": "Boston Bruins",
+        "primary": "#NHLBruins",
+        "alternates": [
+            "#Bruins",
+            "#BearDown"
+        ],
+        "emoji": "🐻"
+    },
+    "BUF": {
+        "team": "Buffalo Sabres",
+        "primary": "#LetsGoBuffalo",
+        "alternates": [
+            "#Sabres",
+            "#SabresLive"
+        ],
+        "emoji": "🦬"
+    },
+    "CGY": {
+        "team": "Calgary Flames",
+        "primary": "#Flames",
+        "alternates": [
+            "#CofRed",
+            "#GoFlamesGo"
+        ],
+        "emoji": "🔥"
+    },
+    "CAR": {
+        "team": "Carolina Hurricanes",
+        "primary": "#CauseChaos",
+        "alternates": [
+            "#LetsGoCanes",
+            "#TakeWarning"
+        ],
+        "emoji": "🌀"
+    },
+    "CHI": {
+        "team": "Chicago Blackhawks",
+        "primary": "#Blackhawks",
+        "alternates": [
+            "#OneGoal",
+            "#CHI"
+        ],
+        "emoji": "🦅"
+    },
+    "COL": {
+        "team": "Colorado Avalanche",
+        "primary": "#GoAvsGo",
+        "alternates": [
+            "#Avs",
+            "#FindAWay"
+        ],
+        "emoji": "⛰️"
+    },
+    "CBJ": {
+        "team": "Columbus Blue Jackets",
+        "primary": "#CBJ",
+        "alternates": [
+            "#LetsGoJackets",
+            "#Boomer"
+        ],
+        "emoji": "🎖️"
+    },
+    "DAL": {
+        "team": "Dallas Stars",
+        "primary": "#TexasHockey",
+        "alternates": [
+            "#GoStars",
+            "#DALStars"
+        ],
+        "emoji": "⭐"
+    },
+    "DET": {
+        "team": "Detroit Red Wings",
+        "primary": "#LGRW",
+        "alternates": [
+            "#RedWings",
+            "#Wings"
+        ],
+        "emoji": "🟥"
+    },
+    "EDM": {
+        "team": "Edmonton Oilers",
+        "primary": "#LetsGoOilers",
+        "alternates": [
+            "#Oilers",
+            "#LetsGoOIL"
+        ],
+        "emoji": "🛢️"
+    },
+    "FLA": {
+        "team": "Florida Panthers",
+        "primary": "#TimeToHunt",
+        "alternates": [
+            "#FLAPanthers",
+            "#Panthers"
+        ],
+        "emoji": "🐆"
+    },
+    "LAK": {
+        "team": "Los Angeles Kings",
+        "primary": "#GoKingsGo",
+        "alternates": [
+            "#LAKings",
+            "#WeAreAllKings"
+        ],
+        "emoji": "👑"
+    },
+    "MIN": {
+        "team": "Minnesota Wild",
+        "primary": "#MnWild",
+        "alternates": [
+            "#GoWild",
+            "#StateOfHockey"
+        ],
+        "emoji": "🌲"
+    },
+    "MTL": {
+        "team": "Montréal Canadiens",
+        "primary": "#GoHabsGo",
+        "alternates": [
+            "#Habs",
+            "#CH"
+        ],
+        "emoji": "🔵"
+    },
+    "NSH": {
+        "team": "Nashville Predators",
+        "primary": "#Smashville",
+        "alternates": [
+            "#Preds",
+            "#GoPreds"
+        ],
+        "emoji": "🐯"
+    },
+    "NJD": {
+        "team": "New Jersey Devils",
+        "primary": "#NJDevils",
+        "alternates": [
+            "#NowWeRise",
+            "#Devils"
+        ],
+        "emoji": "😈"
+    },
+    "NYI": {
+        "team": "New York Islanders",
+        "primary": "#Isles",
+        "alternates": [
+            "#LGI",
+            "#NYIslanders"
+        ],
+        "emoji": "🏝️"
+    },
+    "NYR": {
+        "team": "New York Rangers",
+        "primary": "#NYR",
+        "alternates": [
+            "#NoQuitInNY",
+            "#LetsGoRangers"
+        ],
+        "emoji": "🗽"
+    },
+    "OTT": {
+        "team": "Ottawa Senators",
+        "primary": "#GoSensGo",
+        "alternates": [
+            "#Sens",
+            "#SensArmy"
+        ],
+        "emoji": "🛡️"
+    },
+    "PHI": {
+        "team": "Philadelphia Flyers",
+        "primary": "#LetsGoFlyers",
+        "alternates": [
+            "#Flyers",
+            "#BringItToBroad"
+        ],
+        "emoji": "✈️"
+    },
+    "PIT": {
+        "team": "Pittsburgh Penguins",
+        "primary": "#LetsGoPens",
+        "alternates": [
+            "#Pens",
+            "#PIT"
+        ],
+        "emoji": "🐧"
+    },
+    "SEA": {
+        "team": "Seattle Kraken",
+        "primary": "#SeaKraken",
+        "alternates": [
+            "#ReleaseTheKraken",
+            "#Kraken"
+        ],
+        "emoji": "🐙"
+    },
+    "SJS": {
+        "team": "San Jose Sharks",
+        "primary": "#SJSharks",
+        "alternates": [
+            "#TealTogether",
+            "#SJS"
+        ],
+        "emoji": "🦈"
+    },
+    "STL": {
+        "team": "St. Louis Blues",
+        "primary": "#STLBlues",
+        "alternates": [
+            "#Blues",
+            "#AllTogether"
+        ],
+        "emoji": "🎵"
+    },
+    "TBL": {
+        "team": "Tampa Bay Lightning",
+        "primary": "#GoBolts",
+        "alternates": [
+            "#TBLightning",
+            "#Bolts"
+        ],
+        "emoji": "⚡"
+    },
+    "TOR": {
+        "team": "Toronto Maple Leafs",
+        "primary": "#LeafsForever",
+        "alternates": [
+            "#LeafsNation",
+            "#TMLtalk"
+        ],
+        "emoji": "🍁"
+    },
+    "VAN": {
+        "team": "Vancouver Canucks",
+        "primary": "#WeAreAllCanucks",
+        "alternates": [
+            "#Canucks",
+            "#VancouverCanucks"
+        ],
+        "emoji": "🐋"
+    },
+    "VGK": {
+        "team": "Vegas Golden Knights",
+        "primary": "#VegasBorn",
+        "alternates": [
+            "#GoKnightsGo",
+            "#VGK"
+        ],
+        "emoji": "⚔️"
+    },
+    "WSH": {
+        "team": "Washington Capitals",
+        "primary": "#ALLCAPS",
+        "alternates": [
+            "#Caps",
+            "#CapsCaps"
+        ],
+        "emoji": "🦅"
+    },
+    "WPG": {
+        "team": "Winnipeg Jets",
+        "primary": "#GoJetsGo",
+        "alternates": [
+            "#WPGJets",
+            "#Jets"
+        ],
+        "emoji": "✈️"
+    }
+}
