@@ -1,13 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { MerchBuyButtonProps } from "./MerchBuyButton.client";
 
-const MerchBuyButton = dynamic(() => import("./MerchBuyButton.client"), {
-  ssr: false,
-});
+const MerchBuyButton = dynamic<MerchBuyButtonProps>(
+  () => import("./MerchBuyButton.client"),
+  { ssr: false }
+);
 
 const SHOPIFY_BUY_BUTTON_EMBED = `
-<div id='collection-component-1766038785707'></div>
+<div id="collection-component-1766038785707"></div>
 <script type="text/javascript">
 /*<![CDATA[*/
 (function () {
@@ -61,4 +63,3 @@ export default function MerchPage() {
     </main>
   );
 }
-
