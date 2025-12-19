@@ -182,7 +182,7 @@ C/LW **Nick Paul** — A well-rounded streamer with **decent shots and hits** pl
 
 ---
 
-## Merch Callout
+## New Merch 
 
 If you’re grinding waiver wire edges through the holidays,  Check out our **4th Line Fantasy merch** — mugs, hoodies, and tees built for late-night lineup decisions and Monday morning waiver sessions.
 
