@@ -1,7 +1,7 @@
 ---
 title: "Fantasy Hockey Waiver Wire Picks – Week 12 (2025)"
 date: "2025-12-20"
-excerpt: "Week 12 (Dec 22–28) is a rare Christmas-week slate: no games Dec 24–26, so most teams play just 1–3 times. The edge is simple — prioritize the 3-game teams (SEA/PHI/LAK/CHI/DET/NYI/TBL/TOR), especially those hitting the light Mon/Sun."
+excerpt: "Week 12 (Dec 22–28) is the Christmas-week slate: no games Dec 24–26, so most teams play just 1–3 times. The edge is simple — prioritize the 3-game teams (SEA/PHI/LAK/CHI/DET/NYI/TBL/TOR), especially those hitting the light Mon/Sun."
 tags: ["fantasy hockey", "waiver wire", "streamers", "week 12"]
 categories: ["Waiver Wire"]
 description: "Maximize Week 12 (Dec 22–28, 2025) with the league-wide Christmas break (Dec 24–26) compressing the schedule. Target 3-game teams for pure volume, and lean into the light slates on Monday (8 games) and Sunday (10 games)."
@@ -179,6 +179,16 @@ C/LW **Nick Paul** — A well-rounded streamer with **decent shots and hits** pl
 ---
 
 **Get a head start for Week 13. Use our Optimizer to peek ahead at next week’s top streaming teams and see how they fit your roster (off-night density, man-games, positional needs).**
+
+---
+
+## Merch Callout
+
+If you’re grinding waiver wire edges through the holidays,  Check out our **4th Line Fantasy merch** — mugs, hoodies, and tees built for late-night lineup decisions and Monday morning waiver sessions.
+
+Merry Christmas!
+
+[[fanatics]]
 
 ---
 
