@@ -193,7 +193,7 @@ W **Evander Kane** — The shot-and-hits profile managers look for in category l
 
 If you’re back in full grind mode after the holidays, check out our **[4th Line Fantasy merch](https://shop.4thlinefantasy.com)** — mugs, hoodies, and tees built for late-night lineup decisions and Monday morning waiver sessions.
 
-[[fanatics]]
+---
 
 ---
 
