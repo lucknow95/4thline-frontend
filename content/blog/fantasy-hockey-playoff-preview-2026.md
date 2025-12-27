@@ -7,7 +7,7 @@ categories: ["Playoff Preview"]
 description: "A complete fantasy hockey playoff preview for March 16–April 5. Identify the best schedules, playoff-winning trade targets, and weekly streaming strategies."
 ---
 
-# Fantasy Hockey Playoff Preview (Weeks 1–3): Who Wins on Volume
+# Fantasy Hockey Playoff Preview: Who Wins on Volume
 
 If your fantasy playoffs begin **Monday, March 16**, schedule volume becomes the most important edge you can gain. More games mean more chances for points, shots, hits, blocks, and power-play production — and over a three-week playoff window, even one extra game can decide a matchup.
 
@@ -20,7 +20,7 @@ This guide breaks down:
 
 ---
 
-## Best & Worst Playoff Schedules (Weeks 1–3: Mar 16–Apr 5)
+## Best & Worst Playoff Schedules March 16 – April 5
 
 ### Best Schedules (12 Games)
 These teams offer the biggest edge over the full playoff window:
