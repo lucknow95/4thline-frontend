@@ -185,7 +185,7 @@ W **Evander Kane** — The shot-and-hits profile managers look for in category l
 
 ---
 
-**Want the fastest edge?** Use our Rankkings and Optimizer tools to preview how your roster fits the off-nights, and how to find the best lineup moving forward.
+**Want the fastest edge?** Use our Rankings and Optimizer tools to preview how your roster fits the off-nights, and how to find the best lineup moving forward.
 
 ---
 
