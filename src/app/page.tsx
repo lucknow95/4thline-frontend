@@ -98,8 +98,8 @@ export default async function HomePage() {
           4th Line Fantasy
         </h1>
         <p className="mt-4 text-sm sm:text-base text-neutral-700 leading-7">
-          Smarter fantasy hockey decisions with schedule edges, player tools, and clean data.
-          Free tools now—premium features later.
+          Smarter fantasy hockey decisions with schedule edges, weekly insights, and playoff planning.
+          Free tools to win each week.
         </p>
       </section>
 
