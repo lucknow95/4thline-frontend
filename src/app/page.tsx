@@ -63,6 +63,7 @@ export default async function HomePage() {
   } catch {
     raw = [];
   }
+
   const posts = raw.map(flattenPost);
   const latest = [...posts]
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
@@ -90,27 +91,15 @@ export default async function HomePage() {
   return (
     <main className="mx-auto max-w-6xl px-5 sm:px-6 md:px-8 py-10">
       {/* HERO — white, big buffer */}
-      <section className={`rounded-lg border border-neutral-300 bg-white ${pad} text-neutral-900 shadow-sm`}>
+      <section
+        className={`rounded-lg border border-neutral-300 bg-white ${pad} text-neutral-900 shadow-sm`}
+      >
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
           4th Line Fantasy
         </h1>
         <p className="mt-4 text-sm sm:text-base text-neutral-700 leading-7">
           Smarter fantasy hockey decisions with schedule edges, player tools, and clean data.
           Free tools now—premium features later.
-        </p>
-      </section>
-
-      {/* NEWSLETTER */}
-      <section className={`${cardBase} ${pad} mt-10`}>
-        <SectionHeading>Newsletter: what you’ll get</SectionHeading>
-        <p className={bodyCls}>
-          Quick, actionable fantasy edges: weekly schedule highlights (off-night streams),
-          streaming targets by category (HIT, BLK, SOG, PPP), short strategy notes, and site updates.
-          Read more & sign up on the{" "}
-          <Link href="/newsletter" className={linkHover}>
-            Newsletter page
-          </Link>
-          .
         </p>
       </section>
 
@@ -129,11 +118,6 @@ export default async function HomePage() {
               title: "Blog",
               desc: "Short strategy posts, streaming picks, schedule talk, and build updates.",
               href: "/blog",
-            },
-            {
-              title: "Player Pages & Logs (soon)",
-              desc: "Game logs with home/away splits and upcoming schedule views.",
-              href: "/players",
             },
             {
               title: "Schedule Optimizer",
