@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function MerchPage() {
-  redirect("https://shop.4thlinefantasy.com/");
+  redirect("https://www.etsy.com/shop/4thLineFantasy");
 }

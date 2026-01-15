@@ -32,7 +32,6 @@ export default function Navbar() {
     // { name: 'Crunch Palace', href: '/crunch-palace' }, // 🔒 Hidden for now
     { name: 'Blog', href: '/blog' },
     { name: 'Merch', href: '/merch' },
-    { name: 'Newsletter', href: '/newsletter' },
     { name: 'Login', href: '/login' },
     { name: 'Settings', href: '/settings' },
   ];

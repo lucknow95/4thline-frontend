@@ -36,11 +36,6 @@ export default function Footer() {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/newsletter" className="hover:text-orange-400">
-                                Newsletter
-                            </Link>
-                        </li>
-                        <li>
                             <Link href="/merch" className="hover:text-orange-400">
                                 Merch
                             </Link>
