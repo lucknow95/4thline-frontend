@@ -272,7 +272,7 @@ Use this guide to:
 
 ## New Merch
 
-If we have helped you optimize your roster this season, please consider checking out our **[4th Line Fantasy merch](https://shop.4thlinefantasy.com)** — mugs, hoodies, and tees built for late-night lineup decisions and Monday morning waiver sessions.
+If we have helped you optimize your roster this season, please consider checking out our **[4th Line Fantasy merch](https://www.etsy.com/shop/4thLineFantasy)** — mugs, hoodies, and tees built for late-night lineup decisions and Monday morning waiver sessions.
 
 ---
 

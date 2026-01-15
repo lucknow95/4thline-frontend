@@ -194,7 +194,7 @@ C/RW **Jack Roslovic** — Roslovic has cooled slightly but is still averaging *
 
 ## New Merch
 
-Check out our **[4th Line Fantasy merch](https://shop.4thlinefantasy.com)** — mugs, hoodies, and tees built for late-night lineup decisions.
+Check out our **[4th Line Fantasy merch](https://www.etsy.com/shop/4thLineFantasy)** — mugs, hoodies, and tees built for late-night lineup decisions.
 
 ---
 
