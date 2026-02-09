@@ -56,11 +56,8 @@ The following players come from the **three 12-game teams**. These are skaters w
 
 The Rangers play **12 games** over the playoff window, though **10 are at home** — something that hasn’t always worked in their favor this season. Even so, the sheer volume makes New York one of the most important teams to target.
 
-**Artemi Panarin (LW)**  
-Panarin remains a reliable playoff anchor. He averages **over three shots per game** with consistent point production, giving you a safe floor and strong weekly upside.
-
 **Adam Fox (D)**  
-Currently on long-term IR, Fox offers elite upside if healthy. Expect **power-play points, assists**, and solid contributions in shots and blocks from the blue line.
+Currently on IR, Fox offers elite upside if healthy. Expect **power-play points, assists**, and solid contributions in shots and blocks from the blue line.
 
 **J.T. Miller (C/RW)**  
 Miller hasn’t hit his ceiling this season, but his **shot and hit volume** remains strong. With power-play upside, he’s well suited for a heavy playoff schedule.
