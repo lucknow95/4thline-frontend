@@ -19,7 +19,7 @@ This week is about one thing:
 
 If you add a skater who only plays on the three most overloaded nights, you can easily “stream” yourself into **0 actual starts**.
 
-Let’s win the schedule.
+Let’s win the schedule. If you are a lock for playoffs use our optimizer to look ahead and make the most of your moves this week as you set up into the next. 
 
 ---
 
