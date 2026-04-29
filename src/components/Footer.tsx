@@ -10,7 +10,7 @@ export default function Footer() {
                 <div>
                     <h2 className="text-xl font-bold text-white">4th Line Fantasy</h2>
                     <p className="mt-2 text-sm text-gray-400">
-                        Fantasy hockey tools & insights to give you the edge.
+                        Fantasy hockey tools and schedule insights to give you the edge.
                     </p>
                 </div>
 
@@ -26,8 +26,18 @@ export default function Footer() {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/rankings" className="hover:text-orange-400">
-                                Rankings
+                            <Link href="/streamteam" className="hover:text-orange-400">
+                                Stream Team
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/players" className="hover:text-orange-400">
+                                Players
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/optimizer" className="hover:text-orange-400">
+                                Optimizer
                             </Link>
                         </li>
                         <li>
