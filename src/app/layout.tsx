@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </NavLink>
               </li>
               <li className="h-5 w-px bg-[var(--header-border)]" aria-hidden="true" />
-              <li><NavLink href="/rankings">Rankings</NavLink></li>
+              <li><NavLink href="/streamteam">Stream Team</NavLink></li>
 
               <li><NavLink href="/optimizer">Optimizer</NavLink></li><li><NavLink href="/blog" exact={false}>Blog</NavLink></li>
 

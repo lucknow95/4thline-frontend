@@ -8,7 +8,7 @@ type RawPost = Awaited<ReturnType<typeof getBlogPosts>>[number];
 type FlatPost = {
   slug: string;
   title: string;
-  date: string; // ISO
+  date: string;
   excerpt?: string;
   tags?: string[];
   categories?: string[];
@@ -69,7 +69,6 @@ export default async function HomePage() {
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
     .slice(0, 3);
 
-  // Comfy buffer on all cards (you asked for a big, obvious gap)
   const padX = "px-24 sm:px-28 lg:px-32";
   const padY = "py-16 sm:py-20 lg:py-24";
   const pad = `${padX} ${padY}`;
@@ -90,7 +89,6 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto max-w-6xl px-5 sm:px-6 md:px-8 py-10">
-      {/* HERO — white, big buffer */}
       <section
         className={`rounded-lg border border-neutral-300 bg-white ${pad} text-neutral-900 shadow-sm`}
       >
@@ -98,30 +96,31 @@ export default async function HomePage() {
           4th Line Fantasy
         </h1>
         <p className="mt-4 text-sm sm:text-base text-neutral-700 leading-7">
-          Smarter fantasy hockey decisions with schedule edges, weekly insights, and playoff planning.
-          Free tools to win each week.
+          Smarter fantasy hockey decisions with schedule edges, weekly insights,
+          and playoff planning. Free tools to win each week.
         </p>
       </section>
 
-      {/* FEATURES */}
       <section className="mt-10">
         <SectionHeading>What’s inside</SectionHeading>
         <div className="mt-4 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              title: "Player Rankings",
+              title: "Stream Team",
               desc:
-                "Sort by G, A, PIM, PPP, SHP, SOG, FW, HIT, BLK—totals or per-game, with team & day filters.",
-              href: "/rankings",
+                "Find the best NHL teams to stream by weekly game volume, off-night games, and schedule advantage.",
+              href: "/streamteam",
             },
             {
               title: "Blog",
-              desc: "Short strategy posts, streaming picks, schedule talk, and build updates.",
+              desc:
+                "Short strategy posts, streaming picks, schedule talk, and build updates.",
               href: "/blog",
             },
             {
               title: "Schedule Optimizer",
-              desc: "Plan medium-term moves by total games and off-nights over the next month.",
+              desc:
+                "Plan medium-term moves by total games and off-nights over the next month.",
               href: "/optimizer",
             },
           ].map((f) => (
@@ -133,7 +132,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* LATEST POSTS */}
       <section className="mt-10">
         <SectionHeading>Latest posts</SectionHeading>
         {latest.length === 0 ? (
@@ -148,6 +146,7 @@ export default async function HomePage() {
                 month: "long",
                 day: "numeric",
               });
+
               return (
                 <Link
                   key={p.slug}
@@ -157,13 +156,16 @@ export default async function HomePage() {
                   <div className={titleCls}>{p.title}</div>
                   <div className="mt-2 text-xs text-neutral-500">{date}</div>
                   {"excerpt" in p && p.excerpt ? (
-                    <div className={bodyCls + " mt-3 line-clamp-3"}>{p.excerpt}</div>
+                    <div className={bodyCls + " mt-3 line-clamp-3"}>
+                      {p.excerpt}
+                    </div>
                   ) : null}
                 </Link>
               );
             })}
           </div>
         )}
+
         <div className="mt-6">
           <Link href="/blog" className={linkHover}>
             View all posts
