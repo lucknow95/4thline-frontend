@@ -1,9 +1,9 @@
-// Route layout for /rankings
-// Loads route-scoped global CSS for the rankings table.
+// Route layout for /streamteam
+// Loads route-scoped global CSS for the Stream Team table.
 
-import "./rankings-table.css"; // <-- your CSS beside page.tsx
+import "./rankings-table.css"; // still valid if file is in same folder
 
-export default function RankingsLayout({
+export default function StreamTeamLayout({
   children,
 }: {
   children: React.ReactNode;

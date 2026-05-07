@@ -1,38 +1,23 @@
-/* Visual-only table polish for Rankings page */
+/* Visual-only table polish for Stream Team / Rankings schedule table */
 
 .rankings-table {
   width: 100%;
   table-layout: fixed;
-  border-collapse: separate;     /* needed so column dividers show cleanly */
+  border-collapse: separate;
   border-spacing: 0;
 }
 
+/* Base table cells */
 .rankings-table th,
 .rankings-table td {
   padding: 8px 10px;
-  color: #111;                   /* very visible dark text */
+  color: #111;
   font-weight: 500;
-  background-clip: padding-box;  /* prevents bleed under borders */
-  border-right: 1px solid #e5e7eb; /* vertical column divider */
+  background-clip: padding-box;
+  border-right: 1px solid #e5e7eb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* Ensure the last two columns have room and aren't ellipsized */
-.rankings-table th:nth-last-child(2),
-.rankings-table td:nth-last-child(2) {
-  /* "Games This Week" */
-  min-width: 10ch;
-  text-overflow: clip;           /* show full number */
-}
-
-.rankings-table th:last-child,
-.rankings-table td:last-child {
-  /* "Next Opponent" (e.g., '@COL' or 'vs TOR') */
-  min-width: 8ch;
-  text-overflow: clip;           /* show full token */
-  border-right: none;            /* no divider on last column */
 }
 
 /* Header */
@@ -40,27 +25,139 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #f8fafc;           /* light header band */
+  background: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
   font-weight: 700;
 }
 
+/* Column sizing */
+.rankings-table th:first-child,
+.rankings-table td:first-child {
+  width: 110px;
+}
+
+.rankings-table th:nth-child(2),
+.rankings-table td:nth-child(2) {
+  width: 90px;
+  text-align: center;
+  text-overflow: clip;
+}
+
+.rankings-table th:nth-child(3),
+.rankings-table td:nth-child(3) {
+  width: 130px;
+  text-align: center;
+  text-overflow: clip;
+}
+
+/* Schedule column */
+/* This keeps the Schedule column large enough without breaking the table */
+.rankings-table th.schedule-column,
+.rankings-table td.schedule-column {
+  width: auto;
+  min-width: 0;
+  text-overflow: clip;
+  border-right: none;
+}
+
+/* Important: allow the inner schedule scroller to work inside fixed table cells */
+.rankings-table td.schedule-column {
+  overflow: hidden;
+}
+
+/* Scrollable schedule content inside the schedule cell */
+.schedule-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Cleaner scrollbar for schedule cells */
+.schedule-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.schedule-scroll::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 999px;
+}
+
+.schedule-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Green schedule date pills */
+.schedule-pill {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  background: #00b050;
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.15;
+  border-radius: 4px;
+  padding: 2px 5px;
+  white-space: nowrap;
+}
+
+/* Muted schedule pills for days that are not selected */
+.schedule-pill-muted {
+  background: #e5e7eb;
+  color: #111827;
+}
+
 /* Zebra rows: white / light gray */
-.rankings-table tbody tr:nth-child(odd)  td { background: #ffffff; }
-.rankings-table tbody tr:nth-child(even) td { background: #f3f4f6; }
+.rankings-table tbody tr:nth-child(odd) td {
+  background: #ffffff;
+}
+
+.rankings-table tbody tr:nth-child(even) td {
+  background: #f3f4f6;
+}
 
 /* Horizontal separators */
 .rankings-table tbody tr td {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Optional: make first column (Name) a bit wider */
-.rankings-table td:first-child,
-.rankings-table th:first-child {
-  width: 220px;
-}
-
-/* Optional: tiny tightening on very narrow screens */
+/* Tiny tightening on very narrow screens */
 @media (max-width: 640px) {
-  .rankings-table th, .rankings-table td { padding: 6px 8px; }
+
+  .rankings-table th,
+  .rankings-table td {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  .rankings-table th:first-child,
+  .rankings-table td:first-child {
+    width: 82px;
+  }
+
+  .rankings-table th:nth-child(2),
+  .rankings-table td:nth-child(2) {
+    width: 70px;
+  }
+
+  .rankings-table th:nth-child(3),
+  .rankings-table td:nth-child(3) {
+    width: 96px;
+  }
+
+  .schedule-scroll {
+    gap: 4px;
+  }
+
+  .schedule-pill {
+    font-size: 0.78rem;
+    padding: 2px 4px;
+  }
 }
