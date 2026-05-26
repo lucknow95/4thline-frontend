@@ -424,5 +424,3 @@ Check out our **[4th Line Fantasy merch](https://www.etsy.com/shop/4thLineFantas
 ## Support & Partners
 
 If you’re enjoying the content and tools, consider **[buying us a coffee](https://www.buymeacoffee.com/samirwin)** — thank you!
-
-[[fanatics]]
