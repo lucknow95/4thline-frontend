@@ -31,11 +31,6 @@ export default function Footer() {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/players" className="hover:text-orange-400">
-                                Players
-                            </Link>
-                        </li>
-                        <li>
                             <Link href="/optimizer" className="hover:text-orange-400">
                                 Optimizer
                             </Link>

@@ -7,8 +7,6 @@ categories: ["Waiver Wire"]
 description: "Maximize Playoff Week 3 (Mar 30–Apr 5, 2026) by targeting the best off-night schedules and avoiding heavy-night bench traps."
 ---
 
-# Fantasy Hockey Waiver Wire Picks – Week 23 (Mar 30–Apr 5, 2026)
-
 <br>
 
 Welcome to **Playoff Week 3**.
@@ -29,11 +27,13 @@ It’s the player whose games actually make your roster.
 
 A three- or four-game schedule becomes extremely valuable when those games hit the light nights — especially this week, where the slate is sharply split between a few excellent stream nights and several crowded bench-clog spots.
 
+<br>
+
 ---
 
-## The schedule reality (what actually matters)
-
 <br>
+
+## The Schedule
 
 There are **56 NHL games** in Week 23.
 
@@ -71,7 +71,11 @@ Sunday is playable, but not truly light:
 
 That means the real leverage this week comes from **Monday, Wednesday, and Friday**, with **Sunday** acting as a useful secondary tiebreaker.
 
+<br>
+
 ---
+
+<br>
 
 ## The only thing we’re chasing: startable volume
 
@@ -100,7 +104,9 @@ If you are choosing one team to attack on waivers this week, it starts here.
 
 <br>
 
-### St. Louis Player Targets
+<div style="display:inline-block;margin-top:2rem;margin-bottom:1.25rem;padding:0.5rem 1rem;border-radius:0.75rem;background:rgba(255,138,0,0.18);border:1px solid rgba(255,138,0,0.6);box-shadow:0 0 0 2px rgba(255,138,0,0.22),0 0 18px rgba(255,138,0,0.28);font-weight:800;color:#0F2A44;">
+St. Louis Player Targets
+</div>
 
 <br>
 
@@ -149,7 +155,9 @@ Anaheim is one of the strongest teams to target this week because they hit **all
 
 <br>
 
-### Anaheim Player Targets
+<div style="display:inline-block;margin-top:2rem;margin-bottom:1.25rem;padding:0.5rem 1rem;border-radius:0.75rem;background:rgba(255,138,0,0.18);border:1px solid rgba(255,138,0,0.6);box-shadow:0 0 0 2px rgba(255,138,0,0.22),0 0 18px rgba(255,138,0,0.28);font-weight:800;color:#0F2A44;">
+Anaheim Player Targets
+</div>
 
 <br>
 
@@ -175,6 +183,8 @@ Gudas remains an elite banger option, averaging **almost a penalty minute per ga
 
 ---
 
+<br>
+
 #### Colorado Avalanche (COL)
 
 **COL schedule**
@@ -192,7 +202,9 @@ Colorado doesn’t get the Friday edge, but **Monday + Wednesday + Sunday** is s
 
 <br>
 
-### Colorado Player Targets
+<div style="display:inline-block;margin-top:2rem;margin-bottom:1.25rem;padding:0.5rem 1rem;border-radius:0.75rem;background:rgba(255,138,0,0.18);border:1px solid rgba(255,138,0,0.6);box-shadow:0 0 0 2px rgba(255,138,0,0.22),0 0 18px rgba(255,138,0,0.28);font-weight:800;color:#0F2A44;">
+Colorado Player Targets
+</div>
 
 <br>
 
@@ -223,6 +235,8 @@ Colton is averaging **over 0.3 points per game** with **over 2 shots** and **2 h
 
 ---
 
+<br>
+
 #### New York Islanders (NYI)
 
 **NYI schedule**
@@ -240,7 +254,9 @@ The Islanders only hit **two true off-nights**, but those games come on **Monday
 
 <br>
 
-### New York Islanders Player Targets
+<div style="display:inline-block;margin-top:2rem;margin-bottom:1.25rem;padding:0.5rem 1rem;border-radius:0.75rem;background:rgba(255,138,0,0.18);border:1px solid rgba(255,138,0,0.6);box-shadow:0 0 0 2px rgba(255,138,0,0.22),0 0 18px rgba(255,138,0,0.28);font-weight:800;color:#0F2A44;">
+New York Islanders Player Targets
+</div>
 
 <br>
 
@@ -281,6 +297,8 @@ Gatcomb is a **banger-league specialist**, averaging **over a shot** and **well 
 
 ---
 
+<br>
+
 ## Tier 2 — Volume with imperfections
 
 <br>
@@ -307,8 +325,9 @@ Pittsburgh gets only **one true off-night** on Monday, then runs into a difficul
 
 <br>
 
-### Pittsburgh Player Targets
-
+<div style="display:inline-block;margin-top:2rem;margin-bottom:1.25rem;padding:0.5rem 1rem;border-radius:0.75rem;background:rgba(255,138,0,0.18);border:1px solid rgba(255,138,0,0.6);box-shadow:0 0 0 2px rgba(255,138,0,0.22),0 0 18px rgba(255,138,0,0.28);font-weight:800;color:#0F2A44;">
+Pittsburgh Player Targets
+</div>
 <br>
 
 **Rickard Rakell (C/LW/RW)**  
@@ -332,6 +351,8 @@ Clifton is a banger specialist, averaging **over a penalty minute per game** wit
 <br>
 
 ---
+
+<br>
 
 ## Deep-league watch list
 
@@ -367,9 +388,13 @@ San Jose gets the valuable **Monday-Wednesday** combo, which is enough to matter
 
 Vancouver opens with a very useful **Monday-Wednesday** start, but Thursday and Saturday are difficult nights to use. Like San Jose, this is more of a schedule to cherry-pick from in deeper formats rather than a premium streaming target.
 
+<br>
+
 ---
 
-## Week 23 priority list
+<br>
+
+## Week 23 Priority List
 
 If you are streaming for playoff survival this week, this is the order I would prioritize the schedules:
 
@@ -383,11 +408,14 @@ If you are streaming for playoff survival this week, this is the order I would p
 
 <br>
 
-If you need deeper options after that, **San Jose** and **Vancouver** are the next places to look.
+**Deeper options:**
 
----
+<br>
 
-## The schedule takeaway
+1. **San Jose Sharks**
+2. **Vancouver Canucks**
+
+<br>
 
 This week is not about blindly chasing the most games.
 
@@ -401,13 +429,19 @@ It is about attacking the teams that actually play when your lineup has room.
 
 If you stream the right schedule this week, you can absolutely steal a playoff matchup.
 
+<br>
+
 ---
+
+<br>
 
 ## Playoff Preview Reminder
 
 If your playoffs are still rolling, make sure you also read the full playoff breakdown here:
 
 **https://www.4thlinefantasy.com/blog/fantasy-hockey-playoff-preview-2026**
+
+<br>
 
 ---
 
@@ -416,6 +450,8 @@ If your playoffs are still rolling, make sure you also read the full playoff bre
 ## New Merch
 
 Check out our **[4th Line Fantasy merch](https://www.etsy.com/shop/4thLineFantasy)** — mugs, hoodies, and tees built for late-night lineup decisions.
+
+<br>
 
 ---
 
