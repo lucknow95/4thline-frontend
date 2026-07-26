@@ -1,7 +1,14 @@
-// src/app/streamteam/ScheduleClient.tsx
+﻿// src/app/streamteam/ScheduleClient.tsx
 "use client";
 
 import scheduleData from "@/data/nhlSchedule.json";
+import {
+  clampFantasyWeek,
+  generateWeekOptions,
+  getCurrentFantasyWeek,
+  getWeekDateRange,
+  utcDateToDateOnly,
+} from "@/utils/fantasyWeeks";
 import { useMemo, useState } from "react";
 
 type DayAbbr = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
@@ -21,7 +28,7 @@ type DisplayGame = {
   date: string;
   day: DayAbbr;
   opponent: string;
-  homeAway: "Home" | "Away";
+  homeAway: "Home" | "Away" | "Unknown";
 };
 
 type StreamTeam = {
@@ -31,78 +38,135 @@ type StreamTeam = {
   games: DisplayGame[];
 };
 
-const WEEK1_MON_UTC = Date.UTC(2025, 9, 6);
-const MS_DAY = 24 * 60 * 60 * 1000;
+const DAYS: DayAbbr[] = [
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun",
+];
 
-const DAYS: DayAbbr[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_BY_UTC_INDEX: DayAbbr[] = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+];
 
-function clampWeek(value: number): number {
-  if (!Number.isFinite(value)) return 1;
-  if (value < 1) return 1;
-  if (value > 27) return 27;
-  return Math.floor(value);
+const TEAM_ALIASES_BY_ABBR: Record<string, string[]> = {
+  ANA: ["ANA", "Anaheim", "Anaheim Ducks"],
+  BOS: ["BOS", "Boston", "Boston Bruins"],
+  BUF: ["BUF", "Buffalo", "Buffalo Sabres"],
+  CGY: ["CGY", "Calgary", "Calgary Flames"],
+  CAR: ["CAR", "Carolina", "Carolina Hurricanes"],
+  CHI: ["CHI", "Chicago", "Chicago Blackhawks"],
+  COL: ["COL", "Colorado", "Colorado Avalanche"],
+  CBJ: ["CBJ", "Columbus", "Columbus Blue Jackets"],
+  DAL: ["DAL", "Dallas", "Dallas Stars"],
+  DET: ["DET", "Detroit", "Detroit Red Wings"],
+  EDM: ["EDM", "Edmonton", "Edmonton Oilers"],
+  FLA: ["FLA", "FLO", "Florida", "Florida Panthers"],
+  LAK: ["LAK", "Los Angeles", "Los Angeles Kings"],
+  MIN: ["MIN", "Minnesota", "Minnesota Wild"],
+  MTL: [
+    "MTL",
+    "Montreal",
+    "Montréal",
+    "Montreal Canadiens",
+    "Montréal Canadiens",
+  ],
+  NSH: ["NSH", "Nashville", "Nashville Predators"],
+  NJD: ["NJD", "New Jersey", "New Jersey Devils"],
+  NYI: ["NYI", "New York Islanders"],
+  NYR: ["NYR", "New York Rangers"],
+  OTT: ["OTT", "Ottawa", "Ottawa Senators"],
+  PHI: ["PHI", "Philadelphia", "Philadelphia Flyers"],
+  PIT: ["PIT", "Pittsburgh", "Pittsburgh Penguins"],
+  SJS: ["SJS", "San Jose", "San Jose Sharks"],
+  SEA: ["SEA", "Seattle", "Seattle Kraken"],
+  STL: ["STL", "St. Louis", "St Louis", "St. Louis Blues"],
+  TBL: ["TBL", "Tampa", "Tampa Bay", "Tampa Bay Lightning"],
+  TOR: ["TOR", "Toronto", "Toronto Maple Leafs"],
+  UTM: [
+    "UTM",
+    "UTA",
+    "Utah",
+    "Utah Mammoth",
+    "Utah Hockey Club",
+  ],
+  VAN: ["VAN", "Vancouver", "Vancouver Canucks"],
+  VGK: ["VGK", "Vegas", "Vegas Golden Knights"],
+  WSH: ["WSH", "Washington", "Washington Capitals"],
+  WPG: ["WPG", "WPJ", "Winnipeg", "Winnipeg Jets"],
+};
+
+const NAME_TO_ABBR: Record<string, string> = Object.entries(
+  TEAM_ALIASES_BY_ABBR
+).reduce(
+  (map, [abbr, aliases]) => {
+    for (const alias of aliases) {
+      map[alias] = abbr;
+    }
+
+    return map;
+  },
+  {} as Record<string, string>
+);
+
+function normalizeTeamName(value: string): string {
+  return NAME_TO_ABBR[value] ?? value;
 }
 
-function parseDateToUTC(date: string): number {
-  const parts = date.split("-");
-  if (parts.length !== 3) throw new Error(`Invalid date format: ${date}`);
-
-  const year = Number(parts[0]);
-  const month = Number(parts[1]);
-  const day = Number(parts[2]);
-
-  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
-    throw new Error(`Invalid numeric date: ${date}`);
-  }
-
-  return Date.UTC(year, month - 1, day);
+function parseDateToUTC(date: string): Date {
+  return new Date(`${date}T00:00:00.000Z`);
 }
 
 function getDayAbbr(date: string): DayAbbr {
-  const utc = parseDateToUTC(date);
-  const dayIndex = new Date(utc).getUTCDay();
-
-  const map: Record<number, DayAbbr> = {
-    0: "Sun",
-    1: "Mon",
-    2: "Tue",
-    3: "Wed",
-    4: "Thu",
-    5: "Fri",
-    6: "Sat",
-  };
-
-  return map[dayIndex] ?? "Sun";
-}
-
-function getWeekRange(week: number) {
-  const safeWeek = clampWeek(week);
-  const start = WEEK1_MON_UTC + (safeWeek - 1) * 7 * MS_DAY;
-  const endExclusive = start + 7 * MS_DAY;
-
-  return { start, endExclusive };
-}
-
-function formatShortDate(utc: number): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(utc));
+  const dayIndex = parseDateToUTC(date).getUTCDay();
+  return DAY_BY_UTC_INDEX[dayIndex] ?? "Sun";
 }
 
 function formatDate(date: string): string {
-  return formatShortDate(parseDateToUTC(date));
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(parseDateToUTC(date));
 }
 
-function getOpponent(team: string, game: ScheduleGame): string {
-  if (game.home_team.includes(team)) return game.away_team;
-  if (game.away_team.includes(team)) return game.home_team;
-  return game.away_team;
-}
+function describeGameForTeam(
+  team: string,
+  game: ScheduleGame
+): {
+  opponent: string;
+  homeAway: DisplayGame["homeAway"];
+} {
+  const homeTeam = normalizeTeamName(game.home_team);
+  const awayTeam = normalizeTeamName(game.away_team);
 
-function getHomeAway(team: string, game: ScheduleGame): "Home" | "Away" {
-  if (game.home_team.includes(team)) return "Home";
-  return "Away";
+  if (homeTeam === team) {
+    return {
+      opponent: awayTeam,
+      homeAway: "Home",
+    };
+  }
+
+  if (awayTeam === team) {
+    return {
+      opponent: homeTeam,
+      homeAway: "Away",
+    };
+  }
+
+  return {
+    opponent: awayTeam,
+    homeAway: "Unknown",
+  };
 }
 
 function teamPlaysOnEverySelectedDay(
@@ -117,62 +181,63 @@ function teamPlaysOnEverySelectedDay(
 }
 
 export default function ScheduleClient() {
-  const [week, setWeek] = useState(21);
+  const [week, setWeek] = useState<number>(() =>
+    getCurrentFantasyWeek()
+  );
+
   const [selectedDays, setSelectedDays] = useState<DayAbbr[]>([]);
 
-  const weekOptions = useMemo(() => {
-    return Array.from({ length: 27 }, (_, index) => {
-      const weekNum = index + 1;
-      const { start } = getWeekRange(weekNum);
-      const end = start + 6 * MS_DAY;
-
-      return {
-        value: weekNum,
-        label: `Week ${weekNum} (${formatShortDate(start)} – ${formatShortDate(end)})`,
-      };
-    });
-  }, []);
+  const weekOptions = useMemo(() => generateWeekOptions(), []);
 
   const streamTeams = useMemo<StreamTeam[]>(() => {
-    const { start, endExclusive } = getWeekRange(week);
+    const { start, end } = getWeekDateRange(week);
+    const startDate = utcDateToDateOnly(start);
+    const endDate = utcDateToDateOnly(end);
     const teams = scheduleData as TeamSchedule[];
 
     return teams
       .map((teamBlock) => {
         const games = teamBlock.schedule
-          .filter((game) => {
-            const gameDate = parseDateToUTC(game.date);
-            return gameDate >= start && gameDate < endExclusive;
-          })
+          .filter(
+            (game) =>
+              game.date >= startDate &&
+              game.date <= endDate
+          )
           .map((game) => {
-            const day = getDayAbbr(game.date);
+            const perspective = describeGameForTeam(
+              teamBlock.team,
+              game
+            );
 
             return {
               date: game.date,
-              day,
-              opponent: getOpponent(teamBlock.team, game),
-              homeAway: getHomeAway(teamBlock.team, game),
+              day: getDayAbbr(game.date),
+              opponent: perspective.opponent,
+              homeAway: perspective.homeAway,
             };
           });
 
         return {
           team: teamBlock.team,
           gamesThisWeek: games.length,
-          selectedDayGames: games.filter((g) =>
-            selectedDays.includes(g.day)
+          selectedDayGames: games.filter((game) =>
+            selectedDays.includes(game.day)
           ).length,
           games,
         };
       })
       .filter((team) =>
-        teamPlaysOnEverySelectedDay(team.games, selectedDays)
+        teamPlaysOnEverySelectedDay(
+          team.games,
+          selectedDays
+        )
       );
   }, [week, selectedDays]);
 
   function toggleSelectedDay(day: DayAbbr) {
     setSelectedDays((current) =>
       current.includes(day)
-        ? current.filter((d) => d !== day)
+        ? current.filter((selectedDay) => selectedDay !== day)
         : [...current, day]
     );
   }
@@ -180,38 +245,52 @@ export default function ScheduleClient() {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border p-4">
-        <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+        <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
           <div>
             <label className="mb-1 block text-sm font-semibold">
               Select Week
             </label>
+
             <select
               value={week}
-              onChange={(e) => setWeek(clampWeek(Number(e.target.value)))}
-              className="w-full border px-3 py-2 rounded"
+              onChange={(event) =>
+                setWeek(
+                  clampFantasyWeek(
+                    Number(event.target.value)
+                  )
+                )
+              }
+              className="w-full rounded border px-3 py-2"
             >
-              {weekOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {weekOptions.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                >
+                  {option.label}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-1">
+            <label className="mb-1 block text-sm font-semibold">
               Days You Need Starts
             </label>
+
             <div className="flex flex-wrap gap-2">
               {DAYS.map((day) => (
                 <button
                   key={day}
                   type="button"
                   onClick={() => toggleSelectedDay(day)}
-                  className={`px-3 py-2 rounded border ${selectedDays.includes(day)
+                  className={[
+                    "rounded border px-3 py-2",
+                    selectedDays.includes(day)
                       ? "bg-blue-600 text-white"
-                      : ""
-                    }`}
+                      : "",
+                  ].join(" ")}
+                  aria-pressed={selectedDays.includes(day)}
                 >
                   {day}
                 </button>
@@ -230,27 +309,41 @@ export default function ScheduleClient() {
             <th className="schedule-column">Schedule</th>
           </tr>
         </thead>
+
         <tbody>
           {streamTeams.map((team) => (
             <tr key={team.team}>
               <td>{team.team}</td>
               <td>{team.gamesThisWeek}</td>
               <td>{team.selectedDayGames}</td>
+
               <td className="schedule-column">
                 <div className="schedule-scroll">
-                  {team.games.map((g) => {
-                    const isSelectedDay = selectedDays.includes(g.day);
+                  {team.games.map((game) => {
+                    const isSelectedDay =
+                      selectedDays.includes(game.day);
+
+                    const location =
+                      game.homeAway === "Home"
+                        ? "vs"
+                        : game.homeAway === "Away"
+                          ? "@"
+                          : "";
 
                     return (
                       <span
-                        key={g.date}
+                        key={`${team.team}-${game.date}`}
                         className={
                           isSelectedDay
                             ? "schedule-pill"
                             : "schedule-pill schedule-pill-muted"
                         }
+                        title={`${game.homeAway}: ${game.opponent}`}
                       >
-                        {g.day} {formatDate(g.date)}
+                        {game.day} {formatDate(game.date)}
+                        {location
+                          ? ` ${location} ${game.opponent}`
+                          : ""}
                       </span>
                     );
                   })}
@@ -258,6 +351,17 @@ export default function ScheduleClient() {
               </td>
             </tr>
           ))}
+
+          {streamTeams.length === 0 && (
+            <tr>
+              <td
+                colSpan={4}
+                className="px-4 py-6 text-center text-zinc-600"
+              >
+                No teams play on every selected day.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
