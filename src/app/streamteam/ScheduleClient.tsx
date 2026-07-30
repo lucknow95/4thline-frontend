@@ -1,6 +1,8 @@
-﻿// src/app/streamteam/ScheduleClient.tsx
-"use client";
+﻿"use client";
 
+import TeamScheduleCalendar, {
+  type TeamCalendarGame,
+} from "@/components/schedule/TeamScheduleCalendar";
 import scheduleData from "@/data/nhlSchedule.json";
 import {
   clampFantasyWeek,
@@ -11,7 +13,14 @@ import {
 } from "@/utils/fantasyWeeks";
 import { useMemo, useState } from "react";
 
-type DayAbbr = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+type DayAbbr =
+  | "Mon"
+  | "Tue"
+  | "Wed"
+  | "Thu"
+  | "Fri"
+  | "Sat"
+  | "Sun";
 
 type ScheduleGame = {
   date: string;
@@ -57,6 +66,41 @@ const DAY_BY_UTC_INDEX: DayAbbr[] = [
   "Fri",
   "Sat",
 ];
+
+const TEAM_FULL_BY_ABBR: Record<string, string> = {
+  ANA: "Anaheim Ducks",
+  BOS: "Boston Bruins",
+  BUF: "Buffalo Sabres",
+  CGY: "Calgary Flames",
+  CAR: "Carolina Hurricanes",
+  CHI: "Chicago Blackhawks",
+  COL: "Colorado Avalanche",
+  CBJ: "Columbus Blue Jackets",
+  DAL: "Dallas Stars",
+  DET: "Detroit Red Wings",
+  EDM: "Edmonton Oilers",
+  FLA: "Florida Panthers",
+  LAK: "Los Angeles Kings",
+  MIN: "Minnesota Wild",
+  MTL: "Montreal Canadiens",
+  NSH: "Nashville Predators",
+  NJD: "New Jersey Devils",
+  NYI: "New York Islanders",
+  NYR: "New York Rangers",
+  OTT: "Ottawa Senators",
+  PHI: "Philadelphia Flyers",
+  PIT: "Pittsburgh Penguins",
+  SJS: "San Jose Sharks",
+  SEA: "Seattle Kraken",
+  STL: "St. Louis Blues",
+  TBL: "Tampa Bay Lightning",
+  TOR: "Toronto Maple Leafs",
+  UTM: "Utah Mammoth",
+  VAN: "Vancouver Canucks",
+  VGK: "Vegas Golden Knights",
+  WSH: "Washington Capitals",
+  WPG: "Winnipeg Jets",
+};
 
 const TEAM_ALIASES_BY_ABBR: Record<string, string[]> = {
   ANA: ["ANA", "Anaheim", "Anaheim Ducks"],
@@ -126,6 +170,10 @@ function parseDateToUTC(date: string): Date {
   return new Date(`${date}T00:00:00.000Z`);
 }
 
+function dateToYmdNumber(date: string): number {
+  return Number(date.replaceAll("-", ""));
+}
+
 function getDayAbbr(date: string): DayAbbr {
   const dayIndex = parseDateToUTC(date).getUTCDay();
   return DAY_BY_UTC_INDEX[dayIndex] ?? "Sun";
@@ -186,8 +234,14 @@ export default function ScheduleClient() {
   );
 
   const [selectedDays, setSelectedDays] = useState<DayAbbr[]>([]);
+  const [calendarTeam, setCalendarTeam] = useState<string | null>(null);
 
   const weekOptions = useMemo(() => generateWeekOptions(), []);
+
+  const selectedWeekStartYmd = useMemo(() => {
+    const { start } = getWeekDateRange(week);
+    return dateToYmdNumber(utcDateToDateOnly(start));
+  }, [week]);
 
   const streamTeams = useMemo<StreamTeam[]>(() => {
     const { start, end } = getWeekDateRange(week);
@@ -233,6 +287,34 @@ export default function ScheduleClient() {
         )
       );
   }, [week, selectedDays]);
+
+  const calendarGames = useMemo<TeamCalendarGame[]>(() => {
+    if (!calendarTeam) return [];
+
+    const teams = scheduleData as TeamSchedule[];
+    const teamBlock = teams.find(
+      (block) => block.team === calendarTeam
+    );
+
+    return (teamBlock?.schedule ?? []).flatMap((game) => {
+      const perspective = describeGameForTeam(
+        calendarTeam,
+        game
+      );
+
+      if (perspective.homeAway === "Unknown") {
+        return [];
+      }
+
+      return [
+        {
+          ymd: dateToYmdNumber(game.date),
+          home: perspective.homeAway === "Home",
+          opp: perspective.opponent,
+        },
+      ];
+    });
+  }, [calendarTeam]);
 
   function toggleSelectedDay(day: DayAbbr) {
     setSelectedDays((current) =>
@@ -313,7 +395,19 @@ export default function ScheduleClient() {
         <tbody>
           {streamTeams.map((team) => (
             <tr key={team.team}>
-              <td>{team.team}</td>
+              <td className="font-medium">
+                <button
+                  type="button"
+                  onClick={() => setCalendarTeam(team.team)}
+                  className="bg-transparent p-0 font-semibold text-blue-700 underline-offset-2 hover:underline"
+                  title={`Open ${
+                    TEAM_FULL_BY_ABBR[team.team] || team.team
+                  } calendar`}
+                >
+                  {team.team}
+                </button>
+              </td>
+
               <td>{team.gamesThisWeek}</td>
               <td>{team.selectedDayGames}</td>
 
@@ -364,6 +458,18 @@ export default function ScheduleClient() {
           )}
         </tbody>
       </table>
+
+      {calendarTeam && (
+        <TeamScheduleCalendar
+          team={calendarTeam}
+          teamName={
+            TEAM_FULL_BY_ABBR[calendarTeam] || calendarTeam
+          }
+          games={calendarGames}
+          initialMonthYmd={selectedWeekStartYmd}
+          onClose={() => setCalendarTeam(null)}
+        />
+      )}
     </div>
   );
 }
