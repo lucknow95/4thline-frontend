@@ -1,5 +1,5 @@
 // src/lib/optimizer.ts
-// Pure logic for the "Next N Weeks Team Optimizer" – runs on server or client.
+// Pure logic for the "Next N Weeks Team Optimizer" â€“ runs on server or client.
 
 // -------------------- Types --------------------
 
@@ -31,7 +31,7 @@ export type TeamWindowSummary = {
   b2bCount: number;
   home: number;
   away: number;
-  perWeek: number[];           // bins aligned to selected start (Mon–Sun)
+  perWeek: number[];           // bins aligned to selected start (Monâ€“Sun)
 };
 
 // -------------------- Constants & basic helpers --------------------
@@ -92,14 +92,22 @@ export function nextMondayOnOrAfter(ymd: number): number {
   return addDaysYmd(ymd, add);
 }
 
+export function mondayOnOrBefore(ymd: number): number {
+  const wd = getUtcWeekday(ymd);
+  const subtract = (wd + 6) % 7; // 0 if already Monday
+  return addDaysYmd(ymd, -subtract);
+}
+
 export function clampToSeasonWindow(
   desiredStartYmd: number,
   weeks: number,
   seasonStartYmd: number,
   seasonEndYmd: number
 ): DateRange {
+  const fantasySeasonStartYmd = mondayOnOrBefore(seasonStartYmd);
+
   let start = nextMondayOnOrAfter(desiredStartYmd);
-  if (start < seasonStartYmd) start = nextMondayOnOrAfter(seasonStartYmd);
+  if (start < fantasySeasonStartYmd) start = fantasySeasonStartYmd;
   if (start > seasonEndYmd) start = seasonEndYmd;
   const intendedEnd = addDaysYmd(start, weeks * 7 - 1);
   const end = intendedEnd > seasonEndYmd ? seasonEndYmd : intendedEnd;
@@ -132,7 +140,7 @@ function buildWeekBins(range: DateRange): { starts: number[]; ends: number[] } {
 }
 
 // -------------------- League context (for future extensions) --------------------
-// (kept for potential future “league volume” features)
+// (kept for potential future â€œleague volumeâ€ features)
 /** Create a date -> total league games map within the window. */
 function leagueGamesByDate(schedule: TeamBlock[], range: DateRange): Map<number, number> {
   const map = new Map<number, number>();
@@ -208,7 +216,7 @@ export function summarizeAll(
     const uniqueDates = Array.from(new Set(gamesInWindow.map((g) => g.ymd))).sort((a, b) => a - b);
     const b2bCount = countB2BFromDates(uniqueDates);
 
-    // Per-week bins aligned to the selected window start (Mon–Sun)
+    // Per-week bins aligned to the selected window start (Monâ€“Sun)
     const { starts, ends } = buildWeekBins(range);
     const perWeek = starts.map((binStart, idx) => {
       const binEnd = ends[idx]!;

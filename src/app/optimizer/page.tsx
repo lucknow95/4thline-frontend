@@ -1,4 +1,4 @@
-// src/app/optimizer/page.tsx
+﻿// src/app/optimizer/page.tsx
 import rawScheduleData from "@/data/nhlSchedule.json";
 import type { TeamBlock } from "@/lib/optimizer";
 import OptimizerClient from "./OptimizerClient";
@@ -166,7 +166,6 @@ export default async function OptimizerPage() {
           schedule={schedule}
           seasonStartYmd={startYmd}
           seasonEndYmd={endYmd}
-          teamCityByAbbr={TEAM_CITY_BY_ABBR}
           teamFullByAbbr={ABBR_TO_FULL}
         />
       </div>

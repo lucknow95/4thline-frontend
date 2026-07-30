@@ -1,4 +1,4 @@
-// src/app/optimizer/OptimizerClient.tsx
+﻿// src/app/optimizer/OptimizerClient.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -198,6 +198,8 @@ export default function OptimizerClient({
         seasonEndYmd
       );
 
+      setStartMonday(ymdToInput(resolved.startYmd));
+
       setCustomStart(ymdToInput(resolved.startYmd));
       setCustomEnd(ymdToInput(resolved.endYmd));
     } else {
@@ -281,7 +283,7 @@ export default function OptimizerClient({
     const days =
       Math.floor((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-    return { label: `${fmt(s)} → ${fmt(e)} (${Math.max(1, days)} days)` };
+    return { label: `${fmt(s)} â†’ ${fmt(e)} (${Math.max(1, days)} days)` };
   }, [range]);
 
   const maxGames = rows.reduce((m, r) => Math.max(m, r.gamesTotal), 0) || 1;
@@ -437,7 +439,7 @@ export default function OptimizerClient({
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-1 text-sm text-zinc-600">Min games ≥</label>
+              <label className="mb-1 text-sm text-zinc-600">Min games â‰¥</label>
               <input
                 type="number"
                 min={0}
