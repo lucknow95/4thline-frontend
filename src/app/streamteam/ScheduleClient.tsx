@@ -1,12 +1,11 @@
 ﻿"use client";
 
+import FantasyWeekPicker from "@/components/schedule/FantasyWeekPicker";
 import TeamScheduleCalendar, {
   type TeamCalendarGame,
 } from "@/components/schedule/TeamScheduleCalendar";
 import scheduleData from "@/data/nhlSchedule.json";
 import {
-  clampFantasyWeek,
-  generateWeekOptions,
   getCurrentFantasyWeek,
   getWeekDateRange,
   utcDateToDateOnly,
@@ -236,8 +235,6 @@ export default function ScheduleClient() {
   const [selectedDays, setSelectedDays] = useState<DayAbbr[]>([]);
   const [calendarTeam, setCalendarTeam] = useState<string | null>(null);
 
-  const weekOptions = useMemo(() => generateWeekOptions(), []);
-
   const selectedWeekStartYmd = useMemo(() => {
     const { start } = getWeekDateRange(week);
     return dateToYmdNumber(utcDateToDateOnly(start));
@@ -328,32 +325,10 @@ export default function ScheduleClient() {
     <div className="space-y-6">
       <div className="rounded-xl border p-4">
         <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
-          <div>
-            <label className="mb-1 block text-sm font-semibold">
-              Select Week
-            </label>
-
-            <select
-              value={week}
-              onChange={(event) =>
-                setWeek(
-                  clampFantasyWeek(
-                    Number(event.target.value)
-                  )
-                )
-              }
-              className="w-full rounded border px-3 py-2"
-            >
-              {weekOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                >
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FantasyWeekPicker
+            week={week}
+            onWeekChange={setWeek}
+          />
 
           <div>
             <label className="mb-1 block text-sm font-semibold">
