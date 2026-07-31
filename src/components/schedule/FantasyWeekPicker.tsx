@@ -32,11 +32,11 @@ export default function FantasyWeekPicker({
   }
 
   const arrowClass =
-    "h-10 w-10 shrink-0 rounded-md border border-[var(--border)] bg-white px-0 text-lg font-bold text-slate-800 hover:border-[var(--accent)] hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[var(--border)] disabled:hover:bg-white";
+    "h-10 w-9 shrink-0 rounded-md border border-[var(--border)] bg-white px-0 text-lg font-bold text-slate-800 hover:border-[var(--accent)] hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[var(--border)] disabled:hover:bg-white sm:w-10";
 
   return (
     <div
-      className={["space-y-1", className]
+      className={["w-full min-w-0 space-y-1", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -49,7 +49,7 @@ export default function FantasyWeekPicker({
         </label>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full min-w-0 items-center gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={() => changeWeek(currentWeek - 1)}
@@ -68,16 +68,11 @@ export default function FantasyWeekPicker({
         <select
           id={selectId}
           value={currentWeek}
-          onChange={(event) =>
-            changeWeek(Number(event.target.value))
-          }
-          className="min-w-0 flex-1"
+          onChange={(event) => changeWeek(Number(event.target.value))}
+          className="h-10 w-full min-w-0 flex-1 rounded-md border border-[var(--border)] bg-white px-2 pr-7 text-[13px] font-medium text-slate-900 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-amber-200 sm:px-3 sm:pr-8 sm:text-base"
         >
           {weekOptions.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-            >
+            <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
