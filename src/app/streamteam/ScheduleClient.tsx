@@ -320,17 +320,16 @@ export default function ScheduleClient() {
         : [...current, day]
     );
   }
-
   return (
     <div className="space-y-6">
       <div className="rounded-xl border p-4">
-        <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(380px,420px)_1fr]">
           <FantasyWeekPicker
             week={week}
             onWeekChange={setWeek}
           />
 
-          <div>
+          <div className="min-w-0">
             <label className="mb-1 block text-sm font-semibold">
               Days You Need Starts
             </label>
@@ -342,10 +341,10 @@ export default function ScheduleClient() {
                   type="button"
                   onClick={() => toggleSelectedDay(day)}
                   className={[
-                    "rounded border px-3 py-2",
+                    "h-10 min-w-[52px] rounded-md border px-3 text-base font-medium transition-colors",
                     selectedDays.includes(day)
-                      ? "bg-blue-600 text-white"
-                      : "",
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-[var(--border)] bg-white text-slate-800 hover:border-[var(--accent)] hover:bg-amber-50",
                   ].join(" ")}
                   aria-pressed={selectedDays.includes(day)}
                 >
@@ -375,9 +374,8 @@ export default function ScheduleClient() {
                   type="button"
                   onClick={() => setCalendarTeam(team.team)}
                   className="bg-transparent p-0 font-semibold text-blue-700 underline-offset-2 hover:underline"
-                  title={`Open ${
-                    TEAM_FULL_BY_ABBR[team.team] || team.team
-                  } calendar`}
+                  title={`Open ${TEAM_FULL_BY_ABBR[team.team] || team.team
+                    } calendar`}
                 >
                   {team.team}
                 </button>

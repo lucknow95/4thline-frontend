@@ -1,9 +1,9 @@
 // src/app/optimizer/OptimizerClient.tsx
 "use client";
 
+import TeamScheduleCalendar from "@/components/schedule/TeamScheduleCalendar";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import TeamScheduleCalendar from "@/components/schedule/TeamScheduleCalendar";
 
 import type {
   DateRange,
@@ -372,7 +372,7 @@ export default function OptimizerClient({
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-1 text-sm text-zinc-600">Min games â‰¥</label>
+              <label className="mb-1 text-sm text-zinc-600">Min games </label>
               <input
                 type="number"
                 min={0}
