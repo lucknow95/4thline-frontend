@@ -105,12 +105,17 @@ export function clampToSeasonWindow(
   seasonEndYmd: number
 ): DateRange {
   const fantasySeasonStartYmd = mondayOnOrBefore(seasonStartYmd);
+  const finalFantasyWeekStartYmd = mondayOnOrBefore(seasonEndYmd);
+  const requestedWeekStartYmd = mondayOnOrBefore(desiredStartYmd);
 
-  let start = nextMondayOnOrAfter(desiredStartYmd);
-  if (start < fantasySeasonStartYmd) start = fantasySeasonStartYmd;
-  if (start > seasonEndYmd) start = seasonEndYmd;
+  const start = Math.min(
+    Math.max(requestedWeekStartYmd, fantasySeasonStartYmd),
+    finalFantasyWeekStartYmd
+  );
+
   const intendedEnd = addDaysYmd(start, weeks * 7 - 1);
-  const end = intendedEnd > seasonEndYmd ? seasonEndYmd : intendedEnd;
+  const end = Math.min(intendedEnd, seasonEndYmd);
+
   return { startYmd: start, endYmd: end };
 }
 
@@ -120,7 +125,7 @@ export function clampCustomRangeToSeason(
   seasonStartYmd: number,
   seasonEndYmd: number
 ): DateRange {
-  let start = Math.max(rawStartYmd, seasonStartYmd);
+  const start = Math.max(rawStartYmd, seasonStartYmd);
   let end = Math.min(rawEndYmd, seasonEndYmd);
   if (end < start) end = start;
   return { startYmd: start, endYmd: end };
