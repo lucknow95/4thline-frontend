@@ -102,14 +102,20 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10">
-        <SectionHeading>What’s inside</SectionHeading>
-        <div className="mt-4 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <SectionHeading>Whatâ€™s inside</SectionHeading>
+        <div className="mt-4 grid gap-8 sm:grid-cols-2">
           {[
             {
               title: "Stream Team",
               desc:
                 "Find the best NHL teams to stream by weekly game volume, off-night games, and schedule advantage.",
               href: "/streamteam",
+            },
+            {
+              title: "Weekly Schedule",
+              desc:
+                "View every NHL team's schedule for the selected fantasy week and compare when each team plays.",
+              href: "/weekly-schedule",
             },
             {
               title: "Blog",
@@ -139,7 +145,7 @@ export default async function HomePage() {
             No posts yet. Your first article will appear here.
           </div>
         ) : (
-          <div className="mt-4 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-8 sm:grid-cols-2">
             {latest.map((p) => {
               const date = new Date(p.date).toLocaleDateString("en-CA", {
                 year: "numeric",

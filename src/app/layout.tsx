@@ -75,6 +75,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </li>
               <li className="h-5 w-px bg-[var(--header-border)]" aria-hidden="true" />
               <li><NavLink href="/streamteam">Stream Team</NavLink></li>
+              <li><NavLink href="/weekly-schedule">Weekly Schedule</NavLink></li>
 
               <li><NavLink href="/optimizer">Optimizer</NavLink></li><li><NavLink href="/blog" exact={false}>Blog</NavLink></li>
 

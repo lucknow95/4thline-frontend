@@ -31,6 +31,11 @@ export default function Footer() {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/weekly-schedule" className="hover:text-orange-400">
+                                Weekly Schedule
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="/optimizer" className="hover:text-orange-400">
                                 Optimizer
                             </Link>
