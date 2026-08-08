@@ -194,8 +194,8 @@ export default async function Page({ searchParams }: Props) {
               Home
             </Link>{" "}
             or{" "}
-            <Link href="/rankings" className="underline underline-offset-4">
-              Player Rankings
+            <Link href="/weekly-schedule" className="underline underline-offset-4">
+              Weekly Schedule
             </Link>
             .
           </p>

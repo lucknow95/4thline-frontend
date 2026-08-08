@@ -59,7 +59,7 @@ export default async function NewsletterConfirmedPage({
       <div className="mt-6 flex flex-wrap gap-4">
         <Link href="/" className="underline">Home</Link>
         <Link href="/newsletter" className="underline">Newsletter</Link>
-        <Link href="/rankings" className="underline">Player Rankings</Link>
+        <Link href="/weekly-schedule" className="underline">Weekly Schedule</Link>
       </div>
     </main>
   );

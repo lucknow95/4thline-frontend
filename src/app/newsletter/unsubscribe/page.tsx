@@ -134,8 +134,8 @@ function UnsubscribeContent() {
                 <Link href="/newsletter" className="underline">
                     Newsletter
                 </Link>
-                <Link href="/rankings" className="underline">
-                    Player Rankings
+                <Link href="/weekly-schedule" className="underline">
+                    Weekly Schedule
                 </Link>
             </div>
         </main>
