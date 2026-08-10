@@ -568,7 +568,7 @@ export default function WeeklyScheduleClient() {
                                             team.team
                                             } calendar`}
                                     >
-                                        {team.team}
+                                        {team.team === "UTA" ? "UTM" : team.team}
                                     </button>
                                 </td>
 

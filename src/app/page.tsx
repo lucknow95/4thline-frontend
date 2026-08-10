@@ -102,7 +102,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10">
-        <SectionHeading>Whatâ€™s inside</SectionHeading>
+        <SectionHeading>What's inside</SectionHeading>
         <div className="mt-4 grid gap-8 sm:grid-cols-2">
           {[
             {
