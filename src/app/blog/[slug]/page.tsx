@@ -287,7 +287,10 @@ export default async function BlogPostPage(
           />
 
           <section className="mt-12 md:mt-14 max-w-[76ch] mx-auto rounded-2xl bg-[#0F2A44] text-white p-5 md:p-6 shadow-sm">
-            <h2 className="text-2xl font-extrabold">
+            <h2
+              className="text-2xl font-extrabold"
+              style={{ color: "#FF8A00" }}
+            >
               Support 4th Line Fantasy
             </h2>
 
@@ -301,7 +304,8 @@ export default async function BlogPostPage(
                 href={BUY_ME_A_COFFEE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-xl bg-white px-4 py-3 text-center text-sm font-extrabold text-[#0F2A44] transition hover:shadow-[0_0_0_2px_#FF8A00,0_0_18px_#FF8A00]"
+                className="rounded-xl px-4 py-3 text-center text-sm font-extrabold transition hover:brightness-105 hover:shadow-[0_0_0_2px_#FF8A00,0_0_18px_#FF8A00]"
+                style={{ backgroundColor: "#FF8A00", color: "#0F2A44" }}
               >
                 Buy Me a Coffee
               </a>
